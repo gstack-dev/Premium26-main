@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": 10,
+      "name": "Valeo",
+      "description": "Software and embedded systems internship."
+    },
+    {
+      "id": 11,
+      "name": "Orange",
+      "description": "Networks, data, and digital services internship."
+    },
+    {
+      "id": 12,
+      "name": "Elsewedy Electric",
+      "description": "Power systems and operations internship."
+    },
+    {
+      "id": 13,
+      "name": "Siemens",
+      "description": "Automation and industrial technology internship."
+    }
+  ]
+}

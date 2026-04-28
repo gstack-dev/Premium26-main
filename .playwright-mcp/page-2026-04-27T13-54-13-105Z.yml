@@ -1,0 +1,20 @@
+- generic [ref=e2]:
+  - complementary "React Query Devtools":
+    - button "Open React Query Devtools" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+      - generic [ref=e10]: Open React Query Devtools
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - img "Logo" [ref=e13]
+      - img "Logo2" [ref=e14]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - heading "PST Submitted" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Your PST has been submitted successfully.
+        - paragraph [ref=e19]: "Score: 50 / 68 (73.53%)"
+        - generic [ref=e20]:
+          - paragraph [ref=e21]: Scan this QR code to select internship companies.
+          - img [ref=e22]
+          - paragraph [ref=e25]: or use the direct link
+          - link "Select Internships" [ref=e26] [cursor=pointer]:
+            - /url: /APEC-Premium-2026/internships

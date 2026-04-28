@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEC Premium — Pixel Web Design Ideas</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #cc0000;
+    --red-light: #ff2222;
+    --red-dark: #880000;
+    --gold: #ffcc00;
+    --green: #00cc44;
+    --blue: #3399ff;
+    --dark: #0a0a0a;
+    --dark2: #111111;
+    --dark3: #1a1a1a;
+    --gray: #333333;
+    --gray2: #555555;
+    --white: #ffffff;
+    --pixel: 'Press Start 2P', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
+
+  body {
+    background: var(--dark);
+    color: var(--white);
+    font-family: var(--pixel);
+    font-size: 10px;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ── PIXEL BORDER UTILITY ── */
+  .pixel-box {
+    border: 3px solid var(--red);
+    box-shadow: 0 0 0 3px var(--dark), 0 0 0 6px var(--red-dark);
+    image-rendering: pixelated;
+  }
+  .pixel-box-gold {
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 0 3px var(--dark), 0 0 0 6px #aa8800;
+  }
+  .pixel-box-blue {
+    border: 3px solid var(--blue);
+    box-shadow: 0 0 0 3px var(--dark), 0 0 0 6px #115599;
+  }
+  .pixel-box-green {
+    border: 3px solid var(--green);
+    box-shadow: 0 0 0 3px var(--dark), 0 0 0 6px #006622;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  .scanline::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    background: var(--red-dark);
+    border-bottom: 4px solid var(--red);
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(255,255,255,0.03) 8px, rgba(255,255,255,0.03) 16px);
+  }
+  .page-header h1 {
+    font-size: clamp(10px, 2.5vw, 20px);
+    color: var(--white);
+    text-shadow: 4px 4px 0 var(--red-dark);
+    position: relative;
+    z-index: 1;
+    letter-spacing: 2px;
+  }
+  .page-header p {
+    color: var(--gold);
+    margin-top: 1rem;
+    font-size: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SECTION LABELS ── */
+  .section {
+    padding: 3rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: 8px;
+    color: var(--red-light);
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+  .section-title {
+    font-size: clamp(10px, 2vw, 16px);
+    color: var(--white);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray);
+  }
+  .section-title span { color: var(--red-light); }
+
+  /* ══════════════════════════════════
+     IDEA 1: PAC-MAN TIMER
+  ══════════════════════════════════ */
+  .pacman-demo {
+    background: #000;
+    border-radius: 4px;
+    padding: 2rem;
+    position: relative;
+  }
+  .pst-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .pst-title { color: var(--gold); font-size: 10px; }
+  .timer-display {
+    background: #000;
+    border: 2px solid var(--red);
+    padding: 6px 12px;
+    color: var(--red-light);
+    font-size: 12px;
+    font-family: var(--pixel);
+    min-width: 100px;
+    text-align: center;
+  }
+
+  /* PAC-MAN TRACK */
+  .pacman-track {
+    background: #000;
+    border: 2px solid #222;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+  }
+  .pac-label {
+    font-size: 7px;
+    color: var(--blue);
+    position: absolute;
+    top: 4px;
+    left: 8px;
+  }
+  .pacman-character {
+    width: 32px;
+    height: 32px;
+    position: relative;
+    flex-shrink: 0;
+    transition: left 0.5s linear;
+  }
+  .pacman-svg { width: 32px; height: 32px; }
+
+  .dots-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    padding-left: 8px;
+    flex-wrap: nowrap;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .dot.eaten { opacity: 0; transform: scale(0); }
+  .dot.power {
+    width: 14px;
+    height: 14px;
+    background: var(--gold);
+    animation: pulse-dot 0.8s infinite alternate;
+  }
+  @keyframes pulse-dot {
+    from { opacity: 1; }
+    to { opacity: 0.3; }
+  }
+
+  /* PROGRESS BAR */
+  .hp-bar-wrap {
+    margin-bottom: 1rem;
+  }
+  .hp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    color: var(--gray2);
+    margin-bottom: 4px;
+  }
+  .hp-bar {
+    height: 14px;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    position: relative;
+    overflow: hidden;
+  }
+  .hp-fill {
+    height: 100%;
+    background: var(--red);
+    transition: width 0.5s linear;
+    position: relative;
+  }
+  .hp-fill::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    right: 4px;
+    height: 3px;
+    background: rgba(255,255,255,0.3);
+  }
+  .xp-fill { background: var(--gold); }
+  .hp-fill.green-fill { background: var(--green); }
+
+  /* CONTROL BUTTONS */
+  .pixel-btn {
+    font-family: var(--pixel);
+    font-size: 8px;
+    padding: 10px 16px;
+    border: 2px solid var(--red);
+    background: var(--red-dark);
+    color: var(--white);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.1s;
+  }
+  .pixel-btn:hover { background: var(--red); transform: scale(1.02); }
+  .pixel-btn:active { transform: scale(0.98); }
+  .pixel-btn.gold-btn { border-color: var(--gold); background: #553300; }
+  .pixel-btn.gold-btn:hover { background: #885500; }
+  .pixel-btn.green-btn { border-color: var(--green); background: #003311; }
+  .pixel-btn.green-btn:hover { background: #005522; }
+  .pixel-btn.blue-btn { border-color: var(--blue); background: #001133; }
+  .pixel-btn.blue-btn:hover { background: #002266; }
+
+  /* ══════════════════════════════════
+     IDEA 2: RPG REGISTRATION FORM
+  ══════════════════════════════════ */
+  .rpg-form {
+    background: #0d0d0d;
+    position: relative;
+    overflow: hidden;
+  }
+  .rpg-form::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,0,0,0.02) 3px, rgba(255,0,0,0.02) 4px);
+    pointer-events: none;
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media(max-width:600px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .form-group { position: relative; }
+  .form-label {
+    display: block;
+    font-size: 7px;
+    color: var(--red-light);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .form-label .icon { margin-right: 6px; }
+
+  .pixel-input {
+    width: 100%;
+    font-family: var(--pixel);
+    font-size: 8px;
+    padding: 10px 12px;
+    background: #111;
+    border: 2px solid #333;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    border-radius: 0;
+    appearance: none;
+  }
+  .pixel-input:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(204,0,0,0.3);
+  }
+  .pixel-input::placeholder { color: #444; }
+  .pixel-select {
+    width: 100%;
+    font-family: var(--pixel);
+    font-size: 8px;
+    padding: 10px 12px;
+    background: #111;
+    border: 2px solid #333;
+    color: var(--white);
+    outline: none;
+    cursor: pointer;
+    border-radius: 0;
+  }
+  .pixel-select:focus { border-color: var(--red); }
+  .pixel-select option { background: #111; }
+
+  .form-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 12px;
+    background: var(--red-light);
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* STAT BARS IN FORM */
+  .stat-preview {
+    background: #0a0a0a;
+    border: 2px solid #222;
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .stat-name { font-size: 7px; color: #888; width: 80px; flex-shrink: 0; }
+  .stat-bar-bg { flex: 1; height: 8px; background: #1a1a1a; border: 1px solid #333; }
+  .stat-bar-fill { height: 100%; transition: width 0.5s; }
+  .stat-val { font-size: 7px; color: var(--gold); width: 28px; text-align: right; }
+
+  /* CLASS SELECTOR */
+  .class-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 1rem; }
+  .class-card {
+    border: 2px solid #333;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: #0a0a0a;
+  }
+  .class-card:hover { border-color: var(--red); background: #110000; }
+  .class-card.selected { border-color: var(--gold); background: #1a1000; }
+  .class-card.selected::after {
+    content: '★';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    color: var(--gold);
+    font-size: 14px;
+  }
+  .class-icon { font-size: 22px; display: block; margin-bottom: 8px; }
+  .class-name { font-size: 6px; color: var(--white); }
+  .class-desc { font-size: 5px; color: #666; margin-top: 4px; }
+
+  /* ══════════════════════════════════
+     IDEA 3: QUEST ACCEPT POPUP
+  ══════════════════════════════════ */
+  .quest-popup {
+    background: #0d0d12;
+    border-top: 4px solid var(--blue);
+    border-bottom: 4px solid var(--blue);
+    padding: 2rem;
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .quest-tag {
+    background: var(--blue);
+    color: #000;
+    font-size: 6px;
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+  }
+  .quest-title { font-size: 13px; color: var(--gold); margin-bottom: 0.5rem; }
+  .quest-subtitle { font-size: 7px; color: #888; margin-bottom: 1.5rem; }
+  .quest-rewards {
+    background: #050510;
+    border: 1px solid #222;
+    padding: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .reward-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    padding: 4px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .reward-row:last-child { border-bottom: none; }
+  .reward-key { color: #666; }
+  .reward-val { color: var(--green); }
+  .reward-val.unknown { color: #555; font-style: italic; }
+  .quest-btns { display: flex; gap: 12px; }
+  .quest-btns .pixel-btn { flex: 1; text-align: center; }
+
+  /* ══════════════════════════════════
+     IDEA 4: PST QUESTION SCREEN
+  ══════════════════════════════════ */
+  .question-screen {
+    background: #050508;
+    padding: 2rem;
+    position: relative;
+  }
+  .question-hud {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .hud-badge {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    padding: 6px 10px;
+    font-size: 7px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hud-badge .badge-val { color: var(--gold); }
+  .hud-badge .badge-val.red-val { color: var(--red-light); }
+  .hud-badge .badge-val.blue-val { color: var(--blue); }
+
+  .question-box {
+    background: #0a0a0f;
+    border-left: 4px solid var(--blue);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .question-num { font-size: 7px; color: var(--blue); margin-bottom: 0.5rem; }
+  .question-text { font-size: 9px; color: var(--white); line-height: 2; }
+
+  .choices { display: grid; gap: 10px; }
+  .choice-btn {
+    font-family: var(--pixel);
+    font-size: 8px;
+    padding: 12px 16px;
+    border: 2px solid #333;
+    background: #0a0a0a;
+    color: var(--white);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .choice-btn:hover { border-color: var(--gold); background: #1a1500; color: var(--gold); }
+  .choice-btn.correct { border-color: var(--green); background: #001a05; color: var(--green); }
+  .choice-btn.wrong { border-color: var(--red); background: #1a0000; color: var(--red-light); }
+  .choice-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid currentColor;
+    font-size: 7px;
+    flex-shrink: 0;
+  }
+
+  /* ══════════════════════════════════
+     IDEA 5: RESULTS / MISSION COMPLETE
+  ══════════════════════════════════ */
+  .results-screen {
+    background: #000;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .results-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(204,0,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .mission-complete {
+    font-size: clamp(10px,2.5vw,18px);
+    color: var(--gold);
+    text-shadow: 4px 4px 0 #553300;
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+    animation: flash-gold 1.5s step-end infinite;
+  }
+  @keyframes flash-gold {
+    0%,100% { color: var(--gold); }
+    50% { color: #ffee88; }
+  }
+  .rank-display {
+    font-size: clamp(50px,10vw,80px);
+    line-height: 1;
+    margin-bottom: 1rem;
+    animation: rank-bounce 0.5s ease-out;
+  }
+  @keyframes rank-bounce {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  .rank-s { color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+  .rank-a { color: #00ccff; }
+  .rank-b { color: var(--green); }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #222;
+    border: 1px solid #333;
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+  .result-cell {
+    background: #0a0a0a;
+    padding: 12px;
+  }
+  .result-cell-label { font-size: 6px; color: #555; margin-bottom: 4px; }
+  .result-cell-val { font-size: 10px; color: var(--white); }
+  .result-cell-val.gold { color: var(--gold); }
+  .result-cell-val.green { color: var(--green); }
+
+  /* XP GAIN ANIMATION */
+  .xp-gain {
+    font-size: 8px;
+    color: var(--gold);
+    margin: 0.5rem 0;
+  }
+  .xp-gain-bar {
+    height: 16px;
+    background: #111;
+    border: 2px solid #333;
+    position: relative;
+    overflow: hidden;
+  }
+  .xp-gain-fill {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 2s ease-out;
+    position: relative;
+  }
+  .xp-gain-fill::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,0.4);
+  }
+  .xp-text {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 7px;
+    color: #000;
+    font-family: var(--pixel);
+  }
+
+  /* FLOATING XP NUMBERS */
+  .floating-xp {
+    position: absolute;
+    color: var(--gold);
+    font-size: 10px;
+    pointer-events: none;
+    animation: float-up 1.5s ease-out forwards;
+    z-index: 20;
+  }
+  @keyframes float-up {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.5); }
+  }
+
+  /* ══════════════════════════════════
+     IDEA 6: INVENTORY / SKILLS SELECT
+  ══════════════════════════════════ */
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  .inv-slot {
+    aspect-ratio: 1;
+    border: 2px solid #333;
+    background: #0a0a0a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    padding: 8px;
+  }
+  .inv-slot:hover { border-color: var(--gold); background: #0f0d00; }
+  .inv-slot.selected { border-color: var(--gold); background: #1a1500; }
+  .inv-slot.locked { opacity: 0.4; cursor: not-allowed; }
+  .inv-icon { font-size: 24px; }
+  .inv-name { font-size: 5px; color: #888; margin-top: 4px; text-align: center; line-height: 1.5; }
+  .inv-level {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 6px;
+    color: var(--gold);
+  }
+  .inv-slot .lock-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 10px;
+  }
+
+  /* ══════════════════════════════════
+     NAVIGATION DOTS
+  ══════════════════════════════════ */
+  .idea-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 2rem;
+    background: #060606;
+    border-top: 2px solid #1a1a1a;
+    border-bottom: 2px solid #1a1a1a;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .nav-btn {
+    font-family: var(--pixel);
+    font-size: 6px;
+    padding: 8px 12px;
+    border: 1px solid #333;
+    background: #0a0a0a;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .nav-btn.active { border-color: var(--red); color: var(--red-light); background: #1a0000; }
+
+  /* ══════════════════════════════════
+     DIVIDER
+  ══════════════════════════════════ */
+  .idea-divider {
+    border: none;
+    border-top: 1px solid #1a1a1a;
+    margin: 0;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 6px;
+    padding: 3px 8px;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+  }
+  .badge-red { background: var(--red-dark); color: var(--red-light); border: 1px solid var(--red); }
+  .badge-gold { background: #331a00; color: var(--gold); border: 1px solid #553300; }
+  .badge-blue { background: #001133; color: var(--blue); border: 1px solid #003366; }
+  .badge-green { background: #001a05; color: var(--green); border: 1px solid #004411; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media(max-width:700px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* confetti particles */
+  .confetti { position: absolute; width: 6px; height: 6px; animation: confetti-fall 3s ease-in infinite; }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(300px) rotate(720deg); opacity: 0; }
+  }
+
+  .tag-new {
+    font-size: 5px;
+    background: var(--red);
+    color: #fff;
+    padding: 2px 5px;
+    vertical-align: middle;
+    margin-left: 6px;
+    animation: blink 1s step-end infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE HEADER ═══ -->
+<header class="page-header">
+  <h1>▶ APEC PREMIUM — PIXEL WEB IDEAS</h1>
+  <p>► 6 CREATIVE UI CONCEPTS INSPIRED BY 2D PIXEL ART THEME ◄</p>
+</header>
+
+<!-- ═══ STICKY NAV ═══ -->
+<nav class="idea-nav">
+  <button class="nav-btn active" onclick="scrollTo('idea1')">① PAC-MAN TIMER</button>
+  <button class="nav-btn" onclick="scrollTo('idea2')">② RPG FORM</button>
+  <button class="nav-btn" onclick="scrollTo('idea3')">③ QUEST POPUP</button>
+  <button class="nav-btn" onclick="scrollTo('idea4')">④ PST SCREEN</button>
+  <button class="nav-btn" onclick="scrollTo('idea5')">⑤ RESULTS SCREEN</button>
+  <button class="nav-btn" onclick="scrollTo('idea6')">⑥ SKILL SELECT</button>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     IDEA 1: PAC-MAN TIMER
+════════════════════════════════════════════ -->
+<section class="section" id="idea1">
+  <p class="section-label">CONCEPT 01</p>
+  <h2 class="section-title">PAC-MAN <span>PST COUNTDOWN TIMER</span></h2>
+
+  <div class="pacman-demo pixel-box" style="padding:2rem; position:relative;">
+    <div class="pst-header">
+      <div>
+        <div class="pst-title">⚔ PST MINI-GAME</div>
+        <div style="font-size:6px; color:#555; margin-top:4px;">APEC PREMIUM — THE QUEST</div>
+      </div>
+      <div>
+        <div style="font-size:6px; color:#555; margin-bottom:4px; text-align:right;">TIME REMAINING</div>
+        <div class="timer-display" id="timer-display">02:30</div>
+      </div>
+    </div>
+
+    <!-- HP BAR (time as health) -->
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-label">
+        <span style="color:var(--red-light)">⬤ TIME HP</span>
+        <span id="hp-text">150 / 150</span>
+      </div>
+      <div class="hp-bar">
+        <div class="hp-fill" id="hp-fill" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- PAC-MAN TRACK -->
+    <div class="pacman-track pixel-box-blue" style="padding:1.5rem 2rem; min-height:70px;">
+      <span class="pac-label">TIME TRACK ▶</span>
+      <div class="pacman-character" id="pacman-char">
+        <svg class="pacman-svg" viewBox="0 0 32 32" id="pac-svg">
+          <circle cx="16" cy="16" r="14" fill="#ffcc00"/>
+          <polygon points="16,16 30,10 30,22" fill="#000" id="pac-mouth"/>
+          <circle cx="16" cy="8" r="2" fill="#000"/>
+        </svg>
+      </div>
+      <div class="dots-container" id="dots-container"></div>
+    </div>
+
+    <!-- XP BAR -->
+    <div class="hp-bar-wrap" style="margin-top:12px;">
+      <div class="hp-bar-label">
+        <span style="color:var(--gold)">★ XP PROGRESS</span>
+        <span id="xp-text">0 / 1000</span>
+      </div>
+      <div class="hp-bar">
+        <div class="hp-fill xp-fill" id="xp-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- CONTROL ROW -->
+    <div style="display:flex; gap:12px; margin-top:1.5rem; flex-wrap:wrap;">
+      <button class="pixel-btn" onclick="startTimer()" id="start-btn">▶ START TIMER</button>
+      <button class="pixel-btn gold-btn" onclick="resetTimer()">↺ RESET</button>
+      <div style="margin-left:auto; font-size:7px; color:#555; align-self:center; text-align:right;">
+        DOTS EATEN = TIME USED<br>PAC-MAN EATS TIME!
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS NOTE -->
+  <div style="background:#0a0a0a; border-left:3px solid var(--gold); padding:1rem 1.5rem; margin-top:1.5rem;">
+    <p style="font-size:7px; color:var(--gold); margin-bottom:8px;">★ HOW TO USE IN PST:</p>
+    <p style="font-size:7px; color:#666; line-height:2.5;">Each dot = a fixed time unit (e.g., 10 sec). As time passes, pac-man eats dots from left to right. When all dots are eaten = TIME'S UP! The HP bar shows remaining time visually. Use the yellow "POWER DOTS" as quarter-time checkpoints.</p>
+  </div>
+</section>
+
+<hr class="idea-divider">
+
+<!-- ════════════════════════════════════════════
+     IDEA 2: RPG REGISTRATION FORM
+════════════════════════════════════════════ -->
+<section class="section" id="idea2">
+  <p class="section-label">CONCEPT 02</p>
+  <h2 class="section-title">RPG CHARACTER <span>REGISTRATION FORM</span></h2>
+
+  <div class="pixel-box" style="padding:0;">
+    <!-- Form Header -->
+    <div style="background:var(--red-dark); padding:1rem 1.5rem; border-bottom:2px solid var(--red); display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <div style="font-size:9px; color:var(--white);">CREATE YOUR CHARACTER</div>
+        <div style="font-size:6px; color:#cc6666; margin-top:4px;">APEC PREMIUM — NEW QUEST ENROLLMENT</div>
+      </div>
+      <div style="font-size:7px; color:var(--gold);">LV. 1 <span class="form-cursor"></span></div>
+    </div>
+
+    <div class="rpg-form" style="padding:2rem;">
+
+      <!-- CLASS SELECTION -->
+      <div style="margin-bottom:2rem;">
+        <p class="form-label">⚔ CHOOSE YOUR CLASS</p>
+        <div class="class-grid">
+          <div class="class-card selected" onclick="selectClass(this,'Engineering')" data-stats="90,60,40">
+            <span class="class-icon">⚙️</span>
+            <div class="class-name">ENGINEER</div>
+            <div class="class-desc">HIGH TECH POWER</div>
+          </div>
+          <div class="class-card" onclick="selectClass(this,'Business')" data-stats="50,90,70">
+            <span class="class-icon">📊</span>
+            <div class="class-name">STRATEGIST</div>
+            <div class="class-desc">LEADER CLASS</div>
+          </div>
+          <div class="class-card" onclick="selectClass(this,'Design')" data-stats="40,70,95">
+            <span class="class-icon">🎨</span>
+            <div class="class-name">CREATOR</div>
+            <div class="class-desc">CREATIVE FORCE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT PREVIEW -->
+      <div class="stat-preview pixel-box-blue" style="margin-bottom:2rem;">
+        <p style="font-size:6px; color:var(--blue); margin-bottom:12px; letter-spacing:2px;">CHARACTER STATS PREVIEW</p>
+        <div class="stat-row">
+          <span class="stat-name">⚡ TECHNICAL</span>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-tech" style="width:90%; background:var(--red);"></div></div>
+          <span class="stat-val" id="stat-tech-val">90</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">🗣 LEADERSHIP</span>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-lead" style="width:60%; background:var(--gold);"></div></div>
+          <span class="stat-val" id="stat-lead-val">60</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">✨ CREATIVITY</span>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-crea" style="width:40%; background:var(--blue);"></div></div>
+          <span class="stat-val" id="stat-crea-val">40</span>
+        </div>
+      </div>
+
+      <!-- FORM FIELDS -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label"><span class="icon">👤</span>PLAYER NAME</label>
+          <input class="pixel-input" type="text" placeholder="ENTER YOUR NAME..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">🎓</span>FACULTY</label>
+          <select class="pixel-select">
+            <option>SELECT FACULTY...</option>
+            <option>► ENGINEERING (ASU)</option>
+            <option>► COMPUTER SCIENCE</option>
+            <option>► BUSINESS</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">📧</span>EMAIL ADDRESS</label>
+          <input class="pixel-input" type="email" placeholder="YOUR@EMAIL.COM" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">📱</span>PHONE NUMBER</label>
+          <input class="pixel-input" type="tel" placeholder="+20 000 000 0000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">🔢</span>STUDENT ID</label>
+          <input class="pixel-input" type="text" placeholder="20XXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">⭐</span>ACADEMIC YEAR</label>
+          <select class="pixel-select">
+            <option>SELECT YEAR...</option>
+            <option>► YEAR 1 — NOVICE</option>
+            <option>► YEAR 2 — APPRENTICE</option>
+            <option>► YEAR 3 — ADEPT</option>
+            <option>► YEAR 4 — EXPERT</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div style="margin-top:2rem; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <button class="pixel-btn gold-btn" style="font-size:9px; padding:14px 24px;">▶ ACCEPT QUEST &amp; SUBMIT</button>
+        <div style="font-size:6px; color:#444; line-height:2;">
+          DIFFICULTY: <span style="color:var(--gold)">MEDIUM</span><br>
+          REWARD: <span style="color:#555">UNKNOWN (?)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="idea-divider">
+
+<!-- ════════════════════════════════════════════
+     IDEA 3: QUEST POPUP / ANNOUNCEMENT
+════════════════════════════════════════════ -->
+<section class="section" id="idea3">
+  <p class="section-label">CONCEPT 03</p>
+  <h2 class="section-title">QUEST ACCEPT <span>ANNOUNCEMENT POPUP</span></h2>
+
+  <div class="two-col">
+    <!-- DARK THEME POPUP -->
+    <div>
+      <p style="font-size:7px; color:#555; margin-bottom:12px; letter-spacing:2px;">VERSION A — DARK</p>
+      <div class="quest-popup pixel-box-blue scanline" style="position:relative;">
+        <div style="position:absolute;top:8px;right:12px;font-size:7px;color:#333;">⬛⬛✕</div>
+        <div class="quest-tag">NEW QUEST DETECTED</div>
+        <div class="quest-title">APEC PREMIUM</div>
+        <div class="quest-subtitle">SIDE QUEST AVAILABLE — THE QUEST FOR CAREER MASTERY</div>
+
+        <div class="quest-rewards">
+          <p style="font-size:6px; color:#555; margin-bottom:8px; letter-spacing:2px;">QUEST DETAILS</p>
+          <div class="reward-row">
+            <span class="reward-key">DIFFICULTY</span>
+            <span class="reward-val" style="color:var(--gold)">◆ MEDIUM</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-key">REWARD — XP</span>
+            <span class="reward-val">+1500 XP</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-key">REWARD — SKILL</span>
+            <span class="reward-val">INTERNSHIP READY</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-key">BONUS REWARD</span>
+            <span class="reward-val unknown">??? UNKNOWN</span>
+          </div>
+          <div class="reward-row">
+            <span class="reward-key">TIME LIMIT</span>
+            <span class="reward-val" style="color:var(--red-light)">48:00:00</span>
+          </div>
+        </div>
+
+        <!-- MINI PROGRESS -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:6px; color:#555; margin-bottom:6px;">QUEST PROGRESS</div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="flex:1; height:8px; background:#0a0a0a; border:1px solid #222;">
+              <div style="width:35%; height:100%; background:var(--blue);"></div>
+            </div>
+            <span style="font-size:6px; color:var(--blue);">35%</span>
+          </div>
+        </div>
+
+        <div class="quest-btns">
+          <button class="pixel-btn green-btn" onclick="acceptQuest(this)">[ACCEPT]</button>
+          <button class="pixel-btn" onclick="ignoreQuest(this)">[IGNORE]</button>
+        </div>
+        <div id="quest-response" style="font-size:7px; color:var(--gold); margin-top:10px; min-height:16px;"></div>
+      </div>
+    </div>
+
+    <!-- HURRY UP VARIANT -->
+    <div>
+      <p style="font-size:7px; color:#555; margin-bottom:12px; letter-spacing:2px;">VERSION B — HURRY UP!</p>
+      <div class="pixel-box-gold" style="background:#0a0800; padding:2rem; position:relative;">
+        <!-- COUNTDOWN -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <span style="font-size:8px; color:var(--red-light);">[HURRY UP!]</span>
+          <div style="font-size:9px; color:var(--red-light); border:2px solid var(--red); padding:4px 10px;" id="hurry-timer">00:04:59</div>
+        </div>
+
+        <div style="font-size:11px; color:var(--gold); margin-bottom:4px;">QUEST ENDS SOON!</div>
+        <div style="font-size:7px; color:#666; margin-bottom:1.5rem;">REGISTRATION CLOSES IN 5 MINUTES</div>
+
+        <!-- FLASHING WARNING BARS -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="height:6px; background:var(--red); animation: danger-blink 0.6s step-end infinite;"></div>
+          <div style="font-size:6px; color:var(--red-light); text-align:center; margin-top:6px; animation: danger-blink 0.6s step-end infinite;">⚠ DANGER ZONE — ACT NOW ⚠</div>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <div style="flex:1; background:#0d0d00; border:1px solid #333; padding:10px; font-size:7px; color:#555;">
+            <div style="color:var(--gold); margin-bottom:4px;">SLOTS LEFT</div>
+            <div style="font-size:16px; color:var(--red-light);" id="slots-left">07</div>
+          </div>
+          <div style="flex:1; background:#0d0d00; border:1px solid #333; padding:10px; font-size:7px; color:#555;">
+            <div style="color:var(--gold); margin-bottom:4px;">ENROLLED</div>
+            <div style="font-size:16px; color:var(--green);">143</div>
+          </div>
+        </div>
+
+        <button class="pixel-btn" style="width:100%; margin-top:1.5rem; font-size:9px; padding:14px; border-color:var(--gold); background:var(--red-dark); animation: danger-blink 1s step-end infinite;" onclick="this.textContent='✓ QUEST ACCEPTED!'">
+          ▶ ENTER NOW — DON'T MISS OUT!
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes danger-blink {
+    0%,100% { opacity:1; }
+    50% { opacity:0.4; }
+  }
+</style>
+
+<hr class="idea-divider">
+
+<!-- ════════════════════════════════════════════
+     IDEA 4: PST QUESTION SCREEN
+════════════════════════════════════════════ -->
+<section class="section" id="idea4">
+  <p class="section-label">CONCEPT 04</p>
+  <h2 class="section-title">PST MINI-GAME <span>QUESTION SCREEN</span></h2>
+
+  <div class="question-screen pixel-box">
+    <!-- HUD TOP BAR -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:8px;">
+      <div style="font-size:8px; color:var(--red-light);">⚔ PST BATTLE — ROUND 1</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div class="hud-badge">HP <span class="badge-val red-val" id="q-hp">100/100</span></div>
+        <div class="hud-badge">Q <span class="badge-val">3/10</span></div>
+        <div class="hud-badge">★ XP <span class="badge-val">+250</span></div>
+        <div class="hud-badge">⏱ <span class="badge-val blue-val" id="q-time">01:30</span></div>
+      </div>
+    </div>
+
+    <!-- HP BAR (STAMINA) -->
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-label">
+        <span style="color:var(--green)">STAMINA</span>
+        <span id="stamina-text">100 / 100</span>
+      </div>
+      <div class="hp-bar">
+        <div class="hp-fill green-fill" id="stamina-fill" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- QUESTION BOX -->
+    <div class="question-box">
+      <div class="question-num">▶ QUESTION 03 / 10</div>
+      <div class="question-text">
+        Which of the following best describes APEC's primary mission as an engineering committee?
+      </div>
+    </div>
+
+    <!-- ANSWER CHOICES -->
+    <div class="choices" id="choices">
+      <button class="choice-btn" onclick="answerQuestion(this, false)">
+        <span class="choice-key">A</span>
+        Organizing sports events for engineering students
+      </button>
+      <button class="choice-btn" onclick="answerQuestion(this, true)">
+        <span class="choice-key">B</span>
+        Bridging the gap between academia and industry
+      </button>
+      <button class="choice-btn" onclick="answerQuestion(this, false)">
+        <span class="choice-key">C</span>
+        Providing tutoring services for engineering courses
+      </button>
+      <button class="choice-btn" onclick="answerQuestion(this, false)">
+        <span class="choice-key">D</span>
+        Managing the university's engineering department
+      </button>
+    </div>
+
+    <!-- RESULT FEEDBACK -->
+    <div id="q-feedback" style="min-height:40px; margin-top:1rem;"></div>
+
+    <!-- NEXT QUESTION BTN -->
+    <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <div style="font-size:6px; color:#444;">WRONG ANSWER = -20 HP STAMINA DRAIN</div>
+      <button class="pixel-btn blue-btn" onclick="nextQuestion()">NEXT QUESTION ▶</button>
+    </div>
+  </div>
+</section>
+
+<hr class="idea-divider">
+
+<!-- ════════════════════════════════════════════
+     IDEA 5: RESULTS / MISSION COMPLETE
+════════════════════════════════════════════ -->
+<section class="section" id="idea5">
+  <p class="section-label">CONCEPT 05</p>
+  <h2 class="section-title">MISSION COMPLETE <span>RESULTS SCREEN</span></h2>
+
+  <div class="results-screen pixel-box" id="results-screen" style="position:relative; overflow:hidden;">
+    <!-- Confetti will be generated by JS -->
+    <div id="confetti-container"></div>
+
+    <div class="mission-complete">⚡ MISSION COMPLETE ⚡</div>
+    <div class="rank-display rank-s" id="rank-letter">S</div>
+    <div style="font-size:7px; color:#666; margin-bottom:2rem; letter-spacing:2px;">S RANK — LEGENDARY PERFORMANCE</div>
+
+    <div class="results-grid">
+      <div class="result-cell">
+        <div class="result-cell-label">SCORE</div>
+        <div class="result-cell-val gold" id="score-val">0</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">ACCURACY</div>
+        <div class="result-cell-val green">95%</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">TIME USED</div>
+        <div class="result-cell-val">01:45</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">CORRECT</div>
+        <div class="result-cell-val green">19/20</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">BONUS XP</div>
+        <div class="result-cell-val gold">+500</div>
+      </div>
+      <div class="result-cell">
+        <div class="result-cell-label">STATUS</div>
+        <div class="result-cell-val green">✓ PASSED</div>
+      </div>
+    </div>
+
+    <!-- XP GAIN -->
+    <div style="text-align:left; max-width:400px; margin:0 auto 1.5rem;">
+      <div class="xp-gain">★ XP GAINED: +1500</div>
+      <div class="xp-gain-bar">
+        <div class="xp-gain-fill" id="xp-bar-fill" style="width:0%">
+          <span class="xp-text">0 / 2000 XP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNLOCKED BADGE -->
+    <div style="display:inline-block; border:2px solid var(--gold); padding:12px 24px; margin-bottom:2rem; background:#0a0800;">
+      <div style="font-size:7px; color:#555; margin-bottom:4px;">ACHIEVEMENT UNLOCKED</div>
+      <div style="font-size:9px; color:var(--gold);">🏆 APEC PREMIUM CANDIDATE</div>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="pixel-btn gold-btn" onclick="animateResults()">▶ REPLAY ANIMATION</button>
+      <button class="pixel-btn green-btn">► NEXT LEVEL</button>
+    </div>
+  </div>
+</section>
+
+<hr class="idea-divider">
+
+<!-- ════════════════════════════════════════════
+     IDEA 6: SKILL / TRACK SELECT
+════════════════════════════════════════════ -->
+<section class="section" id="idea6">
+  <p class="section-label">CONCEPT 06</p>
+  <h2 class="section-title">INVENTORY / <span>EVENT TRACK SELECTOR</span></h2>
+
+  <div class="pixel-box" style="padding:2rem; background:#050505;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:8px;">
+      <div>
+        <div style="font-size:9px; color:var(--white);">SELECT YOUR TRACK</div>
+        <div style="font-size:6px; color:#444; margin-top:4px;">CHOOSE WORKSHOPS TO ATTEND — MAX 3</div>
+      </div>
+      <div style="font-size:7px; color:var(--gold);" id="slot-counter">SELECTED: 0 / 3</div>
+    </div>
+
+    <div class="inventory-grid" id="inv-grid">
+      <!-- Slots generated by JS -->
+    </div>
+
+    <div style="margin-top:1.5rem; background:#0a0a0a; border:1px solid #1a1a1a; padding:1rem;" id="item-detail">
+      <p style="font-size:6px; color:#444; text-align:center;">← SELECT A WORKSHOP TO VIEW DETAILS</p>
+    </div>
+
+    <div style="margin-top:1.5rem; display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="pixel-btn gold-btn" onclick="confirmInventory()">► CONFIRM SELECTION</button>
+      <button class="pixel-btn" onclick="clearInventory()">✕ CLEAR ALL</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer style="background:#060606; border-top:3px solid var(--red-dark); padding:2rem; text-align:center;">
+  <div style="font-size:7px; color:#333; letter-spacing:2px;">APEC | PREMIUM — 2D PIXEL ART THEME</div>
+  <div style="font-size:6px; color:#222; margin-top:8px; letter-spacing:1px;">★ IN CHARGE OF CHANGE — 20th ANNIVERSARY ★</div>
+  <div style="font-size:6px; color:#222; margin-top:4px;">PRESS START TO CONTINUE...</div>
+</footer>
+
+
+<script>
+// ── SMOOTH SCROLL ──
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════
+// PAC-MAN TIMER LOGIC
+// ══════════════════════════════════
+const TOTAL_SECS = 150;
+let timeLeft = TOTAL_SECS;
+let timerRunning = false;
+let timerInterval = null;
+const TOTAL_DOTS = 20;
+let dotsEaten = 0;
+
+function buildDots() {
+  const container = document.getElementById('dots-container');
+  container.innerHTML = '';
+  for (let i = 0; i < TOTAL_DOTS; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 4 || i === 9 || i === 14 ? ' power' : '');
+    d.id = 'dot-' + i;
+    container.appendChild(d);
+  }
+}
+buildDots();
+
+function startTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('start-btn').textContent = '▶ RESUME';
+    return;
+  }
+  timerRunning = true;
+  document.getElementById('start-btn').textContent = '⏸ PAUSE';
+  timerInterval = setInterval(tickTimer, 1000);
+}
+
+function tickTimer() {
+  if (timeLeft <= 0) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-display').textContent = 'TIME UP!';
+    document.getElementById('start-btn').textContent = '✕ DONE';
+    return;
+  }
+  timeLeft--;
+  const pct = (TOTAL_SECS - timeLeft) / TOTAL_SECS;
+  const toEat = Math.floor(pct * TOTAL_DOTS);
+
+  // eat dots
+  for (let i = 0; i < toEat; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (d && !d.classList.contains('eaten')) d.classList.add('eaten');
+  }
+
+  // animate pacman
+  const pacman = document.getElementById('pacman-char');
+  const trackW = document.getElementById('dots-container').offsetWidth;
+  pacman.style.transform = `translateX(${Math.min(pct * (trackW - 32), trackW - 32)}px)`;
+
+  // chomp animation
+  const mouth = document.getElementById('pac-mouth');
+  const open = timeLeft % 2 === 0;
+  mouth.setAttribute('points', open ? '16,16 30,10 30,22' : '16,16 30,14 30,18');
+
+  // update displays
+  const mins = String(Math.floor(timeLeft/60)).padStart(2,'0');
+  const secs = String(timeLeft%60).padStart(2,'0');
+  document.getElementById('timer-display').textContent = mins+':'+secs;
+  document.getElementById('hp-fill').style.width = (timeLeft/TOTAL_SECS*100)+'%';
+  document.getElementById('hp-text').textContent = timeLeft + ' / ' + TOTAL_SECS;
+  const xpPct = Math.floor((1-timeLeft/TOTAL_SECS)*100);
+  document.getElementById('xp-fill').style.width = xpPct+'%';
+  document.getElementById('xp-text').textContent = (xpPct*10) + ' / 1000';
+
+  // danger color
+  if (timeLeft < 30) {
+    document.getElementById('hp-fill').style.background = '#ff4400';
+    document.getElementById('timer-display').style.color = '#ff4400';
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timeLeft = TOTAL_SECS;
+  dotsEaten = 0;
+  document.getElementById('timer-display').textContent = '02:30';
+  document.getElementById('timer-display').style.color = '';
+  document.getElementById('hp-fill').style.width = '100%';
+  document.getElementById('hp-fill').style.background = '';
+  document.getElementById('xp-fill').style.width = '0%';
+  document.getElementById('hp-text').textContent = '150 / 150';
+  document.getElementById('xp-text').textContent = '0 / 1000';
+  document.getElementById('pacman-char').style.transform = 'translateX(0px)';
+  document.getElementById('start-btn').textContent = '▶ START TIMER';
+  buildDots();
+}
+
+// ══════════════════════════════════
+// RPG FORM — CLASS SELECT
+// ══════════════════════════════════
+function selectClass(el, name) {
+  document.querySelectorAll('.class-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const stats = el.getAttribute('data-stats').split(',').map(Number);
+  document.getElementById('stat-tech').style.width = stats[0]+'%';
+  document.getElementById('stat-lead').style.width = stats[1]+'%';
+  document.getElementById('stat-crea').style.width = stats[2]+'%';
+  document.getElementById('stat-tech-val').textContent = stats[0];
+  document.getElementById('stat-lead-val').textContent = stats[1];
+  document.getElementById('stat-crea-val').textContent = stats[2];
+}
+
+// ══════════════════════════════════
+// QUEST ACCEPT
+// ══════════════════════════════════
+function acceptQuest(btn) {
+  document.getElementById('quest-response').textContent = '✓ QUEST ACCEPTED! REDIRECTING TO REGISTRATION...';
+  btn.textContent = '✓ ACCEPTED';
+  btn.style.borderColor = 'var(--green)';
+}
+function ignoreQuest(btn) {
+  document.getElementById('quest-response').textContent = '✕ QUEST IGNORED. YOU CAN RE-ACCEPT LATER.';
+  btn.textContent = '✕ IGNORED';
+}
+
+// ══════════════════════════════════
+// PST QUESTION
+// ══════════════════════════════════
+let stamina = 100;
+function answerQuestion(btn, correct) {
+  document.querySelectorAll('.choice-btn').forEach(b => b.style.pointerEvents = 'none');
+  if (correct) {
+    btn.classList.add('correct');
+    document.getElementById('q-feedback').innerHTML = '<span style="color:var(--green);font-size:8px;">✓ CORRECT! +100 XP GAINED!</span>';
+    spawnFloatingXP(btn, '+100 XP');
+  } else {
+    btn.classList.add('wrong');
+    stamina = Math.max(0, stamina - 20);
+    document.getElementById('stamina-fill').style.width = stamina + '%';
+    document.getElementById('stamina-text').textContent = stamina + ' / 100';
+    document.getElementById('q-feedback').innerHTML = '<span style="color:var(--red-light);font-size:8px;">✗ WRONG! -20 STAMINA</span>';
+    // show correct
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      if (b.onclick.toString().includes('true')) b.classList.add('correct');
+    });
+  }
+}
+
+function spawnFloatingXP(target, text) {
+  const el = document.createElement('div');
+  el.className = 'floating-xp';
+  el.textContent = text;
+  el.style.left = (target.offsetLeft + 20) + 'px';
+  el.style.top = (target.offsetTop) + 'px';
+  target.parentElement.style.position = 'relative';
+  target.parentElement.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+function nextQuestion() {
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.classList.remove('correct','wrong');
+    b.style.pointerEvents = '';
+  });
+  document.getElementById('q-feedback').innerHTML = '';
+}
+
+// ══════════════════════════════════
+// HURRY UP COUNTDOWN
+// ══════════════════════════════════
+let hurrySeconds = 299;
+setInterval(() => {
+  if (hurrySeconds > 0) hurrySeconds--;
+  const m = String(Math.floor(hurrySeconds/60)).padStart(2,'0');
+  const s = String(hurrySeconds%60).padStart(2,'0');
+  document.getElementById('hurry-timer').textContent = '00:0'+m+':'+s;
+  const slots = Math.max(0, 7 - Math.floor((299-hurrySeconds)/60));
+  document.getElementById('slots-left').textContent = String(slots).padStart(2,'0');
+}, 1000);
+
+// ══════════════════════════════════
+// RESULTS SCREEN
+// ══════════════════════════════════
+let resultsAnimated = false;
+function animateResults() {
+  // Confetti
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  const colors = ['#cc0000','#ffcc00','#00cc44','#3399ff','#ffffff'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.cssText = `left:${Math.random()*100}%;top:0;background:${colors[i%5]};animation-delay:${Math.random()*2}s;animation-duration:${2+Math.random()*2}s`;
+    container.appendChild(c);
+  }
+
+  // Score count-up
+  const scoreEl = document.getElementById('score-val');
+  let s = 0;
+  const target = 9500;
+  const inc = setInterval(() => {
+    s = Math.min(s + 250, target);
+    scoreEl.textContent = s.toLocaleString();
+    if (s >= target) clearInterval(inc);
+  }, 50);
+
+  // XP bar fill
+  const xpFill = document.getElementById('xp-bar-fill');
+  xpFill.style.width = '0%';
+  setTimeout(() => { xpFill.style.width = '75%'; xpFill.querySelector('.xp-text').textContent = '1500 / 2000 XP'; }, 500);
+}
+setTimeout(animateResults, 800);
+
+// ══════════════════════════════════
+// INVENTORY / TRACK SELECTOR
+// ══════════════════════════════════
+const workshops = [
+  { icon:'💼', name:'CAREER QUEST', desc:'HR & Interview Skills', level:1, locked:false, color:'var(--red)', detail:'Learn to navigate the job market and ace interviews with APEC experts.' },
+  { icon:'🖥', name:'TECH SKILLS', desc:'Programming Bootcamp', level:3, locked:false, color:'var(--blue)', detail:'Hands-on coding and tech challenges with industry mentors.' },
+  { icon:'📊', name:'LEADERSHIP', desc:'Management Track', level:2, locked:false, color:'var(--gold)', detail:'Develop leadership skills through team challenges and case studies.' },
+  { icon:'🎨', name:'DESIGN LAB', desc:'UI/UX Workshop', level:4, locked:false, color:'var(--blue)', detail:'Creative design thinking and prototyping with real project briefs.' },
+  { icon:'🤝', name:'NETWORKING', desc:'Connect & Grow', level:1, locked:false, color:'var(--green)', detail:'Speed networking with professionals and APEC alumni.' },
+  { icon:'🚀', name:'STARTUP LAB', desc:'Entrepreneurship', level:3, locked:false, color:'var(--gold)', detail:'Pitch your idea and receive mentorship from successful founders.' },
+  { icon:'🔒', name:'AI WORKSHOP', desc:'Coming Soon', level:5, locked:true, color:'#555', detail:'LOCKED — Complete previous workshops to unlock.' },
+  { icon:'🔒', name:'PREMIUM ONLY', desc:'Top Performers', level:5, locked:true, color:'#555', detail:'LOCKED — S-Rank performers only.' },
+];
+let selectedItems = new Set();
+
+function buildInventory() {
+  const grid = document.getElementById('inv-grid');
+  grid.innerHTML = '';
+  workshops.forEach((w, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'inv-slot' + (w.locked ? ' locked' : '') + (selectedItems.has(i) ? ' selected' : '');
+    slot.innerHTML = `
+      ${w.locked ? '<span class="lock-icon">🔒</span>' : ''}
+      <span class="inv-icon">${w.icon}</span>
+      <div class="inv-name" style="color:${selectedItems.has(i)?'var(--gold)':'#888'}">${w.name}</div>
+      <div class="inv-name" style="font-size:4px;color:#555;margin-top:2px;">${w.desc}</div>
+      ${!w.locked ? '<div class="inv-level">LV.'+w.level+'</div>' : ''}
+    `;
+    if (!w.locked) {
+      slot.onclick = () => toggleItem(i);
+      slot.onmouseenter = () => showDetail(i);
+    }
+    grid.appendChild(slot);
+  });
+  document.getElementById('slot-counter').textContent = 'SELECTED: ' + selectedItems.size + ' / 3';
+}
+
+function toggleItem(i) {
+  if (selectedItems.has(i)) {
+    selectedItems.delete(i);
+  } else if (selectedItems.size < 3) {
+    selectedItems.add(i);
+  } else {
+    document.getElementById('item-detail').innerHTML = '<p style="font-size:7px;color:var(--red-light);">✕ MAX 3 WORKSHOPS SELECTED</p>';
+    return;
+  }
+  buildInventory();
+}
+
+function showDetail(i) {
+  const w = workshops[i];
+  document.getElementById('item-detail').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span style="font-size:28px;">${w.icon}</span>
+      <div>
+        <div style="font-size:8px;color:${w.color};margin-bottom:4px;">${w.name} — LV.${w.level}</div>
+        <div style="font-size:6px;color:#666;">${w.detail}</div>
+      </div>
+    </div>
+  `;
+}
+
+function confirmInventory() {
+  if (selectedItems.size === 0) {
+    document.getElementById('item-detail').innerHTML = '<p style="font-size:7px;color:var(--red-light);">⚠ SELECT AT LEAST 1 WORKSHOP</p>';
+    return;
+  }
+  const names = [...selectedItems].map(i => workshops[i].name).join(', ');
+  document.getElementById('item-detail').innerHTML = `<p style="font-size:7px;color:var(--green);">✓ CONFIRMED: ${names}</p>`;
+}
+
+function clearInventory() {
+  selectedItems.clear();
+  buildInventory();
+  document.getElementById('item-detail').innerHTML = '<p style="font-size:6px;color:#444;text-align:center;">← SELECT A WORKSHOP TO VIEW DETAILS</p>';
+}
+
+buildInventory();
+</script>
+</body>
+</html>

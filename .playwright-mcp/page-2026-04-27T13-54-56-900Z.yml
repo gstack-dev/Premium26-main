@@ -1,0 +1,75 @@
+- generic [ref=e2]:
+  - complementary "React Query Devtools":
+    - button "Open React Query Devtools" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+      - generic [ref=e10]: Open React Query Devtools
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - img "Logo" [ref=e13]
+      - img "Logo2" [ref=e14]
+    - main [ref=e15]:
+      - region "Internship Application" [ref=e16]:
+        - generic [ref=e17]:
+          - paragraph [ref=e18]: APEC Premium 26
+          - heading "Internship Application" [level=1] [ref=e19]
+        - generic [ref=e20]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Student name
+            - textbox "Student name" [active] [ref=e24]:
+              - /placeholder: Student Name
+            - paragraph [ref=e59]: Student name is required
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: Email
+              - textbox "Email" [ref=e28]
+              - paragraph [ref=e60]: Email is required
+            - generic [ref=e29]:
+              - generic [ref=e30]: Phone
+              - textbox "Phone" [ref=e31]:
+                - /placeholder: "01012345678"
+              - paragraph [ref=e61]: Phone number is required
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]: University
+              - combobox "University" [ref=e35]:
+                - option "Select University" [selected]
+                - option "Ain Shams University"
+              - paragraph [ref=e62]: University is required
+            - generic [ref=e36]:
+              - generic [ref=e37]: Faculty
+              - combobox "Faculty" [ref=e38]:
+                - option "Select Faculty" [selected]
+                - option "Engineering"
+              - paragraph [ref=e63]: Faculty is required
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]: Year
+              - combobox "Year" [ref=e42]:
+                - option "Select Year" [selected]
+                - option "First Year"
+              - paragraph [ref=e64]: Year is required
+            - generic [ref=e43]:
+              - generic [ref=e44]: Major
+              - combobox "Major" [ref=e45]:
+                - option "Select Major" [selected]
+                - option "Computer Engineering"
+              - paragraph [ref=e65]: Major is required
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Program
+              - combobox "Program" [ref=e49]:
+                - option "Select Program" [selected]
+                - option "Mainstream"
+              - paragraph [ref=e66]: Program is required
+            - generic [ref=e50]:
+              - generic [ref=e51]: Event Source
+              - combobox "Event Source" [ref=e52]:
+                - option "Select Event Source" [selected]
+                - option "Facebook"
+              - paragraph [ref=e67]: Event Source is required
+          - generic [ref=e54]:
+            - generic [ref=e55]: Experience
+            - textbox "Experience" [ref=e56]:
+              - /placeholder: Previous experience
+            - paragraph [ref=e68]: Experience is required
+          - button "Submit" [ref=e58] [cursor=pointer]

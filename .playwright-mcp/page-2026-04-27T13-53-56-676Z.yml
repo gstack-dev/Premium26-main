@@ -1,0 +1,15 @@
+- generic [ref=e2]:
+  - complementary "React Query Devtools":
+    - button "Open React Query Devtools" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+      - generic [ref=e10]: Open React Query Devtools
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - img "Logo" [ref=e13]
+      - img "Logo2" [ref=e14]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - heading "Upload CV" [level=1] [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e20] [cursor=pointer]: Upload FileNo file selected
+          - button "Submit" [ref=e22] [cursor=pointer]

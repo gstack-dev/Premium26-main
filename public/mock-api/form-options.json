@@ -1,0 +1,118 @@
+{
+  "universities": [
+    {
+      "id": 1,
+      "name": "Ain Shams University"
+    },
+    {
+      "id": 2,
+      "name": "Cairo University"
+    },
+    {
+      "id": 3,
+      "name": "Helwan University"
+    }
+  ],
+  "faculties": [
+    {
+      "id": 1,
+      "name": "Engineering"
+    },
+    {
+      "id": 2,
+      "name": "Computer Science"
+    },
+    {
+      "id": 3,
+      "name": "Business"
+    }
+  ],
+  "years": [
+    {
+      "id": 1,
+      "name": "First Year"
+    },
+    {
+      "id": 2,
+      "name": "Second Year"
+    },
+    {
+      "id": 3,
+      "name": "Third Year"
+    },
+    {
+      "id": 4,
+      "name": "Fourth Year"
+    },
+    {
+      "id": 5,
+      "name": "Fifth Year"
+    }
+  ],
+  "majors": [
+    {
+      "id": 1,
+      "name": "Computer Engineering"
+    },
+    {
+      "id": 2,
+      "name": "Electrical Power"
+    },
+    {
+      "id": 3,
+      "name": "Mechanical Production"
+    },
+    {
+      "id": 4,
+      "name": "Civil Engineering"
+    },
+    {
+      "id": 5,
+      "name": "Business Administration"
+    }
+  ],
+  "programs": [
+    {
+      "value": "mainstream",
+      "label": "Mainstream"
+    },
+    {
+      "value": "credit",
+      "label": "Credit"
+    },
+    {
+      "value": "ahlia",
+      "label": "Ahlia"
+    }
+  ],
+  "event_sources": [
+    {
+      "value": "ushering",
+      "label": "Ushering"
+    },
+    {
+      "value": "facebook",
+      "label": "Facebook"
+    },
+    {
+      "value": "linkedin",
+      "label": "LinkedIn"
+    },
+    {
+      "value": "whatsapp",
+      "label": "WhatsApp"
+    },
+    {
+      "value": "instagram",
+      "label": "Instagram"
+    },
+    {
+      "value": "friend",
+      "label": "Friend"
+    },
+    {
+      "value": "other",
+      "label": "Other"
+    }
+  ]
+}

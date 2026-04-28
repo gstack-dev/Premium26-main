@@ -1,0 +1,356 @@
+import { useQuery } from "@tanstack/react-query";
+import { fetchQuiz } from "../services/apiServices";
+import Spinner from "../ui/Spinner";
+import Error from "./Error";
+import { useEffect, useState } from "react";
+import Question from "../features/quizPage/Question";
+import Button from "../ui/Button";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import { useAddQuiz } from "../features/quizPage/useAddStudentQuiz";
+import { useSearchParams } from "react-router";
+import NotFound from "./NotFound";
+
+export interface QuestionType {
+  id: number;
+  question: string;
+  level: string;
+  image_link: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  option_e: string;
+}
+
+function Quiz() {
+  const navigate = useNavigate();
+  const [timer, setTimer] = useState(45* 60);
+  const minutes = Math.floor(timer / 60);
+  const seconds = timer % 60;
+  const { isLoading, isError, addQuiz } = useAddQuiz();
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answersIndex, setAnswersIndex] = useState<Record<number, string>>({});
+
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('id');
+  const hash_code = searchParams.get('code') as string;
+
+  const { data, error, isLoading: isFetchingQuiz } = useQuery({
+    queryKey: ["quiz", hash_code],
+    queryFn: () => fetchQuiz(hash_code),
+  });
+
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     localStorage.setItem("submitOnLoad", "true");
+  //     localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+  //   };
+
+  //   let hasSubmitted = false;
+
+  //   const onBlur = () => {
+  //     if (!hasSubmitted)!=="true"){
+  //       alert("Tab switching or screen recording is not allowed. The quiz will be submitted.");
+  //       hasSubmitted = true;
+  //       localStorage.setItem("submitOnLoad", "true");
+  //       localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+  //       autoSubmit();
+  //     }
+  //   };
+
+  //   const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u"))) {
+  //       e.preventDefault();
+  //       alert("Screenshots are not allowed.");
+  //       localStorage.setItem("submitOnLoad", "true");
+  //       localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+  //     }
+  //   };
+
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //   window.addEventListener("blur", onBlur);
+  //   document.addEventListener("contextmenu", handleContextMenu);
+  //   document.addEventListener("keydown", handleKeyDown);
+
+  //   if (localStorage.getItem("submitOnLoad") === "true") {
+  //     autoSubmit();
+  //   }
+
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //     window.removeEventListener("blur", onBlur);
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, [answersIndex]);
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.setItem("submitOnLoad", "true");
+      localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+    };
+  
+    let hasSubmitted = false;
+    let blurTimeout: ReturnType<typeof setTimeout>;
+  
+    const onBlur = () => {
+      if (!hasSubmitted) {
+
+        blurTimeout = setTimeout(() => {
+          if (document.visibilityState !== "visible" && !hasSubmitted) {
+            alert("You were away for too long. The quiz will be submitted.");
+            hasSubmitted = true;
+            localStorage.setItem("submitOnLoad", "true");
+            localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+            autoSubmit();
+          }
+        }, 10000); 
+      }
+    };
+  
+    const onFocus = () => {
+      clearTimeout(blurTimeout);
+    };
+  
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "PrintScreen" || (e.ctrlKey && (e.key === "s" || e.key === "u"))) {
+        e.preventDefault();
+        alert("Screenshots are not allowed.");
+        localStorage.setItem("submitOnLoad", "true");
+        localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+      }
+    };
+  
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("blur", onBlur);
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+  
+    if (localStorage.getItem("submitOnLoad") === "true") {
+      autoSubmit();
+    }
+  
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("blur", onBlur);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(blurTimeout);
+    };
+  }, [answersIndex]);
+  
+
+  useEffect(() => {
+    const time = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(time);
+  }, [timer]);
+
+  useEffect(() => {
+    if (timer === 0) {
+      localStorage.setItem("submitOnLoad", "true");
+      localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(answersIndex));
+      autoSubmit();
+    }
+  }, [timer]);
+
+  const autoSubmit = () => {
+    const shouldSubmit = localStorage.getItem("submitOnLoad") === "true";
+    const savedAnswersIndex = localStorage.getItem("pendingQuizAnswersIndex");
+
+    if (shouldSubmit && savedAnswersIndex) {
+      const parsedAnswersIndex = JSON.parse(savedAnswersIndex);
+      addQuiz({ hash_code, answersIndex: parsedAnswersIndex });
+
+      toast.success(timer === 0 ? "Time is up. Your quiz has been auto-submitted." : "Quiz auto-submitted due to reload or switching tabs.");
+
+      //localStorage.setItem(`quizSubmitted_${hash_code}`, "true"); 
+
+      localStorage.removeItem("submitOnLoad");
+      localStorage.removeItem("pendingQuizAnswers");
+      localStorage.removeItem("pendingQuizAnswersIndex");
+
+      navigate("/ThankYou", { replace: true });
+    }
+  };
+
+  const handleChange = (id: number, value: string, index: string) => {
+    const updatedAnswers = { ...answers, [id]: value };
+    const updatedAnswersIndex = { ...answersIndex, [id]: index };
+
+    setAnswers(updatedAnswers);
+    setAnswersIndex(updatedAnswersIndex);
+
+    localStorage.setItem("pendingQuizAnswers", JSON.stringify(updatedAnswers));
+    localStorage.setItem("pendingQuizAnswersIndex", JSON.stringify(updatedAnswersIndex));
+  };
+
+  const onSubmit = () => {
+    const unansweredQuestions = Object.keys(answersIndex).filter((val) => val !== "").length;
+    if (unansweredQuestions !== (Array.isArray(data)?data.length:0)) {
+      toast.error("Please answer all questions");
+      return;
+    }
+
+    addQuiz({ hash_code, answersIndex });
+    toast.success("Quiz submitted");
+
+   // localStorage.setItem(`quizSubmitted_${hash_code}`, "true"); 
+
+    localStorage.removeItem("pendingQuizAnswers");
+    localStorage.removeItem("pendingQuizAnswersIndex");
+    localStorage.removeItem("submitOnLoad");
+
+    navigate("/ThankYou", { replace: true });
+  };
+
+  if (!studentId || !hash_code) return <NotFound />;
+  if (isFetchingQuiz) return <Spinner />;
+  if (error) return <Error message="The quiz has already been submitted." />;
+  if (isError) return <Error message="Error fetching quiz" />;
+
+//if (localStorage.getItem(`quizSubmitted_${hash_code}`) === "true") {
+   // return <Error message="You have already submitted the quiz." />;
+  //}
+
+  const timerDanger = timer < 5 * 60;
+  const timerPct = (timer / (45 * 60)) * 100;
+
+  return (
+    <section
+      className="select-none"
+      style={{ maxWidth: "900px", margin: "3rem auto" }}
+      aria-labelledby="quiz"
+    >
+      {/* Title bar */}
+      <div
+        style={{
+          background: "var(--red-dark)",
+          borderBottom: "3px solid var(--red)",
+          padding: "1rem 1.5rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ fontSize: "10px", color: "var(--white)" }}>
+          ⚔ QUIZ BATTLE
+        </div>
+        <div style={{ fontSize: "6px", color: "#cc6666" }}>
+          APEC PREMIUM 26
+        </div>
+      </div>
+
+      {/* Sticky HUD */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          background: "#060606",
+          borderBottom: "2px solid #1a1a1a",
+          padding: "1rem 1.5rem",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "0.75rem",
+            flexWrap: "wrap",
+            gap: "8px",
+          }}
+        >
+          <div className="hud-badge">
+            ⏱ TIME{" "}
+            <span
+              style={{
+                color: timerDanger ? "var(--red-light)" : "var(--blue)",
+                animation: timerDanger
+                  ? "danger-blink 0.6s step-end infinite"
+                  : "none",
+              }}
+            >
+              {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+            </span>
+          </div>
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            variant="gold"
+            onClick={onSubmit}
+          >
+            ▶ SUBMIT QUIZ
+          </Button>
+        </div>
+
+        {/* Timer HP bar */}
+        <div className="hp-bar-wrap" style={{ marginBottom: 0 }}>
+          <div className="hp-bar">
+            <div
+              className="hp-fill"
+              style={{
+                width: `${timerPct}%`,
+                background: timerDanger ? "#ff4400" : "var(--green)",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Questions */}
+      <div
+        style={{
+          padding: "1.5rem",
+          background: "var(--dark2)",
+          border: "3px solid var(--red)",
+          borderTop: "none",
+        }}
+      >
+        <h2
+          id="quiz"
+          style={{
+            fontSize: "8px",
+            color: "var(--gold)",
+            marginBottom: "1.5rem",
+            letterSpacing: "2px",
+          }}
+        >
+          ► ANSWER ALL QUESTIONS BELOW
+        </h2>
+
+        {data &&
+          Array.isArray(data) &&
+          data.length > 0 &&
+          data.map((q) => (
+            <Question
+              key={q.id}
+              q={q}
+              setOnChange={handleChange}
+              selected={answers[q.id]}
+            />
+          ))}
+
+        <div style={{ marginTop: "2rem", display: "flex", justifyContent: "center" }}>
+          <Button
+            type="submit"
+            isLoading={isLoading}
+            variant="gold"
+            onClick={onSubmit}
+          >
+            ▶ SUBMIT QUIZ
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default Quiz;

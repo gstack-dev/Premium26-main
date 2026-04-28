@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "name": "Student Name",
+  "email": "student@example.com",
+  "phone": "01012345678",
+  "status": "selection",
+  "token": "mock-premium26-token",
+  "pst_result": {
+    "id": 1,
+    "score": 50,
+    "total_questions": 68,
+    "percentage": 73.53,
+    "submitted_at": "2026-04-27 15:00:00"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "json_valid": true,
+  "zip_created": true,
+  "questions_extracted": 134,
+  "media_files_extracted_to_images_folder": 158,
+  "images_referenced_by_questions": 154,
+  "questions_with_separate_image_options": 2,
+  "separate_image_option_objects": 11,
+  "questions_with_options_embedded_in_question_image": 123,
+  "correct_answers_from_colored_or_highlighted_options": 128,
+  "correct_answers_from_explicit_answer_text_only_when_no_format_marker_found": 1,
+  "questions_without_detectable_correct_answer": 5,
+  "missing_image_paths_after_validation": [],
+  "notes": [
+    "Separate image answer options are represented in options[].image_ids.",
+    "Questions where visual answer choices are already embedded inside the main image are marked with options_embedded_in_question_image=true.",
+    "Correct answers were detected from non-default font color, Word highlight, or shading where available.",
+    "All referenced image paths were validated."
+  ]
+}

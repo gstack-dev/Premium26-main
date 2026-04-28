@@ -1,0 +1,11 @@
+{
+  "data": {
+    "id": 1,
+    "student_id": 1,
+    "score": 50,
+    "total_questions": 68,
+    "percentage": 73.53,
+    "status": "selection",
+    "submitted_at": "2026-04-27T15:00:00+00:00"
+  }
+}

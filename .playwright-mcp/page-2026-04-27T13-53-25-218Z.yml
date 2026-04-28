@@ -1,0 +1,16 @@
+- generic [ref=e2]:
+  - complementary "React Query Devtools":
+    - button "Open React Query Devtools" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+      - generic [ref=e10]: Open React Query Devtools
+  - generic [ref=e13]:
+    - banner [ref=e14]:
+      - img "Logo" [ref=e15]
+      - img "Logo2" [ref=e16]
+    - main [ref=e17]:
+      - generic [ref=e18]:
+        - heading "Internship Companies" [level=1] [ref=e19]
+        - generic [ref=e20]:
+          - textbox "Registered email or phone" [active] [ref=e21]
+          - paragraph [ref=e24]: Please enter your registered email or phone
+          - button "Continue" [ref=e23] [cursor=pointer]

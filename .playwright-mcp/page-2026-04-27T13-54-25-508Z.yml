@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - complementary "React Query Devtools":
+    - button "Open React Query Devtools" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+      - generic [ref=e10]: Open React Query Devtools
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - img "Logo" [ref=e13]
+      - img "Logo2" [ref=e14]
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - heading "Registered" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Your Premium 26 application was submitted successfully.
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Scan this QR code to start the PST.
+          - img [ref=e21]
+          - paragraph [ref=e24]: or use the direct link
+          - link "Start PST" [ref=e25] [cursor=pointer]:
+            - /url: /APEC-Premium-2026/pst
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: CV upload is optional and can be completed now.
+          - link "Upload CV" [ref=e28] [cursor=pointer]:
+            - /url: /APEC-Premium-2026/upload-cv
+        - generic [ref=e29]:
+          - paragraph [ref=e30]: "Please note:"
+          - generic [ref=e31]:
+            - paragraph [ref=e32]: "* You are only allowed to take the PST once."
+            - paragraph [ref=e33]: "* Do not refresh the PST page while taking it."
+            - paragraph [ref=e34]: "* Do not share your application details with anyone."
+            - paragraph [ref=e35]: "* Switching away from the PST page may submit your answers."
