@@ -17,7 +17,6 @@ import {
 } from "../types/form";
 import Button from "../ui/Button";
 import Spinner from "../ui/Spinner";
-import { sendQrMail } from "../services/apiServices";
 import { resumeAudio, usePixelSound } from "../services/usePixelSound";
 
 type LookupFormData = {
@@ -233,6 +232,7 @@ function Pst() {
     isWarningRef.current = isWarning;
   }, [isWarning]);
   const [warningCountdown, setWarningCountdown] = useState(WARNING_SECONDS);
+  const [violationCount, setViolationCount] = useState(0);
   // Instructions modal — shown after questions load, before timer starts
   const [showInstructions, setShowInstructions] = useState(false);
   const [examStarted, setExamStarted] = useState(false);
@@ -286,8 +286,6 @@ function Pst() {
     onSuccess: (data) => {
       if (student) {
         localStorage.removeItem(getAnswersStorageKey(student.id));
-        // Fire QR mail — silent, non-blocking
-        sendQrMail({ name: "pst", student_id: student.id, token: student.token }).catch(() => {});
       }
       localStorage.setItem("premium26PstComplete", "true");
       void data;
@@ -462,6 +460,14 @@ function Pst() {
           play("warning");
           setIsWarning(true);
           setWarningCountdown(WARNING_SECONDS);
+          setViolationCount((prev) => {
+            const next = prev + 1;
+            if (next >= 5) {
+              toast.error("MISSION ABORTED: TOO MANY VIOLATIONS", { duration: 5000 });
+              submitCurrentAnswers(true);
+            }
+            return next;
+          });
         }
       }
     };
@@ -482,12 +488,41 @@ function Pst() {
           play("warning");
           setIsWarning(true);
           setWarningCountdown(WARNING_SECONDS);
+          setViolationCount((prev) => {
+            const next = prev + 1;
+            if (next >= 5) {
+              toast.error("MISSION ABORTED: TOO MANY VIOLATIONS", { duration: 5000 });
+              submitCurrentAnswers(true);
+            }
+            return next;
+          });
         }
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [student, questionsReady, hasSubmitted, play]);
+
+    const onBlur = () => {
+      if (examStarted && !hasSubmitted && !isWarningRef.current) {
+        play("warning");
+        setIsWarning(true);
+        setWarningCountdown(WARNING_SECONDS);
+        setViolationCount((prev) => {
+          const next = prev + 1;
+          if (next >= 5) {
+            toast.error("MISSION ABORTED: TOO MANY VIOLATIONS", { duration: 5000 });
+            submitCurrentAnswers(true);
+          }
+          return next;
+        });
+      }
+    };
+    window.addEventListener("blur", onBlur);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [student, questionsReady, hasSubmitted, play, examStarted, submitCurrentAnswers]);
 
   // ── Warning countdown — auto-submit when it hits 0 ──
   useEffect(() => {
@@ -507,13 +542,18 @@ function Pst() {
   useEffect(() => {
     if (!student || !questionsReady || hasSubmitted) return;
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleDragStart = (e: DragEvent) => e.preventDefault();
     const handleKeyDown = (e: KeyboardEvent) => {
+      const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
+
       if (
         e.key === "PrintScreen" ||
-        (e.ctrlKey && ["s", "u"].includes(e.key.toLowerCase()))
+        (isCmdOrCtrl && isShift && e.key.toLowerCase() === "s") || // Snipping tool
+        (isCmdOrCtrl && ["s", "u", "p"].includes(e.key.toLowerCase())) // Save, View Source, Print
       ) {
         e.preventDefault();
-        toast.error("Screenshots and saving are not allowed during the PST.");
+        toast.error("Screenshots, saving, and printing are not allowed during the PST.");
       }
       // Block Escape from exiting fullscreen (can't fully prevent but warn)
       if (e.key === "Escape") {
@@ -521,9 +561,11 @@ function Pst() {
       }
     };
     document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("dragstart", handleDragStart);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("dragstart", handleDragStart);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [hasSubmitted, questionsReady, student]);
@@ -710,6 +752,10 @@ function Pst() {
           RETURN IMMEDIATELY OR YOUR PST
           <br />
           WILL BE AUTO-SUBMITTED.
+          <br />
+          <span style={{ color: "var(--red-light)", marginTop: "1rem", display: "inline-block" }}>
+            VIOLATION {violationCount} / 5
+          </span>
         </div>
 
         {/* Countdown ring */}
@@ -765,7 +811,15 @@ function Pst() {
       </div>
     )}
 
-    <section style={{ maxWidth: "900px", margin: "3rem auto" }}>
+    <section
+      style={{
+        maxWidth: "900px",
+        margin: "3rem auto",
+        userSelect: "none",
+        WebkitUserSelect: "none",
+        MozUserSelect: "none",
+      }}
+    >
       {/* ── Title bar ── */}
       <div
         style={{

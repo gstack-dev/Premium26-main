@@ -7,7 +7,6 @@ import {
   fetchEligibleInternships,
   getApiErrorMessage,
   lookupStudent,
-  sendQrMail,
   submitInternshipPreferences,
 } from "../services/apiServices";
 import { InternshipPreference, StudentLookupResponse } from "../types/form";
@@ -72,10 +71,6 @@ function Internships() {
   const { mutate: submitPreferences, isLoading: isSubmitting } = useMutation({
     mutationFn: submitInternshipPreferences,
     onSuccess: () => {
-      // Fire QR mail — silent, non-blocking
-      if (student) {
-        sendQrMail({ name: "companies", student_id: student.id, token: student.token }).catch(() => {});
-      }
       toast.success("Internship preferences submitted successfully");
       navigate("/thank-you?submit=internship-preferences", { replace: true });
     },

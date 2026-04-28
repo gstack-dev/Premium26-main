@@ -9,6 +9,7 @@ import {
   fetchYears,
   getApiErrorMessage,
   registerStudent,
+  sendQrMail,
 } from "../services/apiServices";
 import {
   EntityOption,
@@ -49,18 +50,7 @@ const fallbackEventSources: ValueOption[] = [
   { value: "other", label: "Other" },
 ];
 
-function mapRegistrationPayload(
-  values: RegistrationFormValues
-): RegistrationPayload {
-  return {
-    ...values,
-    major_id: Number(values.major_id),
-    year_id: Number(values.year_id),
-    university_id: Number(values.university_id),
-    faculty_id: Number(values.faculty_id),
-    cv: values.cv[0],
-  };
-}
+
 
 function FieldError({ message }: { message?: string }) {
   return (
@@ -106,7 +96,7 @@ function EntitySelect({
         control={control}
         rules={{ 
           required: `${label} is required`,
-          validate: (value) => Number(value) > 0 || `${label} is required`,
+          validate: (value) => value === "-1" || Number(value) > 0 || `${label} is required`,
         }}
         render={({ field }) => (
           <SearchablePixelSelect
@@ -176,7 +166,9 @@ function PremiumForm() {
     control,
   } = useForm<RegistrationFormValues>();
 
-  const selectedFacultyId = useWatch({ control, name: "faculty_id" });
+  const selectedUnivId = useWatch({ control, name: "university_id" });
+  const selectedFacId = useWatch({ control, name: "faculty_id" });
+  const selectedMajorId = useWatch({ control, name: "major_id" });
 
   // Individual catalog queries
   const { data: universities = [], isLoading: isLoadingUnis } = useQuery({
@@ -198,10 +190,38 @@ function PremiumForm() {
   });
 
   const { data: majors = [], isLoading: isLoadingMajors } = useQuery({
-    queryKey: ["majors", selectedFacultyId],
-    queryFn: () => fetchMajors(selectedFacultyId ? Number(selectedFacultyId) : undefined),
+    queryKey: ["majors", selectedFacId],
+    queryFn: () => fetchMajors(selectedFacId ? Number(selectedFacId) : undefined),
     enabled: true, // Fetch all if none selected, or filter by ID
   });
+
+  const universityOptions = [
+    ...universities.filter((u) => u.name.toLowerCase() !== "other"),
+    ...(universities.find((u) => u.name.toLowerCase() === "other")
+      ? [universities.find((u) => u.name.toLowerCase() === "other")!]
+      : [{ id: -1, name: "Other" }]),
+  ];
+
+  const facultyOptions = [
+    ...faculties.filter((f) => f.name.toLowerCase() !== "other"),
+    ...(faculties.find((f) => f.name.toLowerCase() === "other")
+      ? [faculties.find((f) => f.name.toLowerCase() === "other")!]
+      : [{ id: -1, name: "Other" }]),
+  ];
+
+  const majorOptions = [
+    ...majors.filter((m) => m.name.toLowerCase() !== "other"),
+    ...(majors.find((m) => m.name.toLowerCase() === "other")
+      ? [majors.find((m) => m.name.toLowerCase() === "other")!]
+      : [{ id: -1, name: "Other" }]),
+  ];
+
+  const isOtherUniv =
+    universityOptions.find((u) => String(u.id) === String(selectedUnivId))?.name.toLowerCase() === "other";
+  const isOtherFac =
+    facultyOptions.find((f) => String(f.id) === String(selectedFacId))?.name.toLowerCase() === "other";
+  const isOtherMajor =
+    majorOptions.find((m) => String(m.id) === String(selectedMajorId))?.name.toLowerCase() === "other";
 
   const isLoadingOptions = isLoadingUnis || isLoadingFacs || isLoadingYears || isLoadingMajors;
   const isOptionsError = false; // Simplified error handling for individual queries
@@ -214,6 +234,12 @@ function PremiumForm() {
       localStorage.removeItem("studentData");
       localStorage.removeItem("premium26PstComplete");
       toast.success("Registration submitted successfully");
+      // Fire QR mail — silent, non-blocking
+      sendQrMail({
+        name: "cv_upload",
+        student_id: data.student_id,
+        token: data.token,
+      }).catch(() => {});
       reset();
       navigate("/success", { replace: true });
     },
@@ -224,7 +250,27 @@ function PremiumForm() {
   });
 
   function onSubmit(values: RegistrationFormValues) {
-    mutate(mapRegistrationPayload(values));
+    const payload: RegistrationPayload = {
+      ...values,
+      major_id:
+        values.major_id && Number(values.major_id) > 0
+          ? Number(values.major_id)
+          : null,
+      year_id: Number(values.year_id),
+      university_id:
+        values.university_id && Number(values.university_id) > 0
+          ? Number(values.university_id)
+          : null,
+      faculty_id:
+        values.faculty_id && Number(values.faculty_id) > 0
+          ? Number(values.faculty_id)
+          : null,
+      other_university: isOtherUniv ? values.other_university : undefined,
+      other_faculty: isOtherFac ? values.other_faculty : undefined,
+      other_major: isOtherMajor ? values.other_major : undefined,
+      cv: values.cv[0],
+    };
+    mutate(payload);
   }
 
   if (isLoadingOptions) return <Spinner />;
@@ -392,6 +438,14 @@ function PremiumForm() {
                   placeholder="ENTER YOUR ID"
                   {...register("national_id", {
                     required: "National ID is required",
+                    minLength: {
+                      value: 14,
+                      message: "National ID must be at least 14 characters",
+                    },
+                    pattern: {
+                      value: /^\d+$/,
+                      message: "National ID must contain numbers only",
+                    },
                   })}
                   onFocus={() => { resumeAudio(); play("click"); }}
                 />
@@ -404,18 +458,64 @@ function PremiumForm() {
               <EntitySelect
                 label="University"
                 name="university_id"
-                options={universities}
+                options={universityOptions}
                 control={control}
                 error={String(errors.university_id?.message || "")}
               />
               <EntitySelect
                 label="Faculty"
                 name="faculty_id"
-                options={faculties}
+                options={facultyOptions}
                 control={control}
                 error={String(errors.faculty_id?.message || "")}
               />
             </InputGroup>
+
+            {/* Other Univ/Fac fields */}
+            {(isOtherUniv || isOtherFac) && (
+              <InputGroup>
+                {isOtherUniv && (
+                  <InputCol>
+                    <label className="form-label" htmlFor="other_university">
+                      🏫 UNIVERSITY NAME
+                    </label>
+                    <input
+                      id="other_university"
+                      className="pixel-input"
+                      placeholder="ENTER UNIVERSITY NAME..."
+                      {...register("other_university", {
+                        required: "Please specify your university",
+                      })}
+                      onFocus={() => {
+                        resumeAudio();
+                        play("click");
+                      }}
+                    />
+                    <FieldError message={String(errors.other_university?.message || "")} />
+                  </InputCol>
+                )}
+                {isOtherFac && (
+                  <InputCol>
+                    <label className="form-label" htmlFor="other_faculty">
+                      🎓 FACULTY NAME
+                    </label>
+                    <input
+                      id="other_faculty"
+                      className="pixel-input"
+                      placeholder="ENTER FACULTY NAME..."
+                      {...register("other_faculty", {
+                        required: "Please specify your faculty",
+                      })}
+                      onFocus={() => {
+                        resumeAudio();
+                        play("click");
+                      }}
+                    />
+                    <FieldError message={String(errors.other_faculty?.message || "")} />
+                  </InputCol>
+                )}
+              </InputGroup>
+            )}
 
             {/* Year & Major */}
             <InputGroup>
@@ -429,11 +529,35 @@ function PremiumForm() {
               <EntitySelect
                 label="Major"
                 name="major_id"
-                options={majors}
+                options={majorOptions}
                 control={control}
                 error={String(errors.major_id?.message || "")}
               />
             </InputGroup>
+
+            {/* Other Major field */}
+            {isOtherMajor && (
+              <InputGroup>
+                <InputCol>
+                  <label className="form-label" htmlFor="other_major">
+                    📜 MAJOR NAME
+                  </label>
+                  <input
+                    id="other_major"
+                    className="pixel-input"
+                    placeholder="ENTER MAJOR NAME..."
+                    {...register("other_major", {
+                      required: "Please specify your major",
+                    })}
+                    onFocus={() => {
+                      resumeAudio();
+                      play("click");
+                    }}
+                  />
+                  <FieldError message={String(errors.other_major?.message || "")} />
+                </InputCol>
+              </InputGroup>
+            )}
 
             {/* Program & Event Source */}
             <InputGroup>

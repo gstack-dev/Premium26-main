@@ -45,6 +45,9 @@ export type RegistrationFormValues = {
   year_id: string;
   university_id: string;
   faculty_id: string;
+  other_university?: string;
+  other_faculty?: string;
+  other_major?: string;
   program: string;
   event_source: string;
   referral_code?: string;
@@ -57,10 +60,13 @@ export type RegistrationPayload = {
   phone: string;
   national_id: string;
   experience: string;
-  major_id: number;
+  major_id: number | null;
   year_id: number;
-  university_id: number;
-  faculty_id: number;
+  university_id: number | null;
+  faculty_id: number | null;
+  other_university?: string;
+  other_faculty?: string;
+  other_major?: string;
   program: string;
   event_source: string;
   referral_code?: string;
@@ -89,6 +95,8 @@ export type StudentLookupResponse = {
   national_id: string;
   status: string;
   token: string;
+  other_university?: string;
+  other_faculty?: string;
   pst_result: PstResult | null;
   qr_codes: {
     cv_upload: string;

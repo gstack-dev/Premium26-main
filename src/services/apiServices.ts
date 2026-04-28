@@ -132,10 +132,27 @@ export async function registerStudent(
   formData.append("phone", payload.phone);
   formData.append("national_id", payload.national_id);
   formData.append("experience", payload.experience);
-  formData.append("major_id", String(payload.major_id));
+  if (payload.major_id) {
+    formData.append("major_id", String(payload.major_id));
+  }
   formData.append("year_id", String(payload.year_id));
-  formData.append("university_id", String(payload.university_id));
-  formData.append("faculty_id", String(payload.faculty_id));
+  
+  if (payload.university_id) {
+    formData.append("university_id", String(payload.university_id));
+  }
+  if (payload.faculty_id) {
+    formData.append("faculty_id", String(payload.faculty_id));
+  }
+  if (payload.other_university) {
+    formData.append("other_university", payload.other_university);
+  }
+  if (payload.other_faculty) {
+    formData.append("other_faculty", payload.other_faculty);
+  }
+  if (payload.other_major) {
+    formData.append("other_major", payload.other_major);
+  }
+  
   formData.append("program", payload.program);
   formData.append("event_source", payload.event_source);
   formData.append("cv", payload.cv);
