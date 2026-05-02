@@ -258,9 +258,9 @@ export async function fetchEligibleInternships(
     return unwrapData(response);
   }
 
-  const response = await api.post<DataEnvelope<InternshipCompany[]>>(
-    "/internships/eligible",
-    payload
+  const response = await api.get<DataEnvelope<InternshipCompany[]>>(
+    "/interns/eligible",
+    { params: payload }
   );
   return unwrapData(response.data);
 }
@@ -306,13 +306,57 @@ export async function sendQrMail(
   });
 }
 
+export type EligibleQrStep = "cv_upload" | "pst" | "companies";
+
+export interface SendEligibleQrPayload {
+  message?: string;
+  step: EligibleQrStep;
+  base_url?: string;
+}
+
+export interface SendEligibleQrResponse {
+  success: boolean;
+  summary: {
+    sent: number;
+    failed: number;
+    total_eligible: number;
+  };
+  results: {
+    email: string;
+    status: string;
+  }[];
+}
+
+export async function sendQrMailToEligible(
+  payload: SendEligibleQrPayload
+): Promise<SendEligibleQrResponse> {
+  if (useMockApi) {
+    return {
+      success: true,
+      summary: { sent: 10, failed: 0, total_eligible: 10 },
+      results: [],
+    };
+  }
+
+  const fullBase = "https://apeceg.com/APEC26_Premium_main";
+
+  const response = await api.post<SendEligibleQrResponse>("/mail/qr/eligible", {
+    message: payload.message,
+    step: payload.step,
+    base_url: payload.base_url || fullBase,
+  });
+
+  return response.data;
+}
+
 // ── Admin student list (Premium 26) ──
 export type AdminStudentStatus =
-  | "registered"
-  | "cv_uploaded"
-  | "pst_submitted"
+  | "test"
   | "selection"
-  | "confirmed"
+  | "rejected"
+  | "waiting1"
+  | "waiting2"
+  | "accepted"
   | string;
 
 export type AdminStudent = {
@@ -320,19 +364,26 @@ export type AdminStudent = {
   name: string;
   email: string;
   phone: string;
+  national_id: string;
+  experience: string;
+  referral_code?: string | null;
   token: string;
   status: AdminStudentStatus;
-  major?: string;
-  university?: string;
-  faculty?: string;
-  year?: string | number;
-  university_id?: number;
-  faculty_id?: number;
   major_id?: number;
+  other_major?: string | null;
+  university_id?: number;
+  other_university?: string | null;
+  faculty_id?: number;
+  other_faculty?: string | null;
   year_id?: number;
   program?: string;
-  cv_path?: string | null;
+  event_source?: string;
+  cv_id?: string | null;
   created_at?: string;
+  updated_at?: string;
+  pst_score?: number | null;
+  pst_raw_score?: number | null;
+  pst_total_questions?: number | null;
   pst_result?: {
     score: number;
     total_questions: number;
@@ -343,6 +394,12 @@ export type AdminStudent = {
     rank: number;
     company_name: string;
   }[];
+  first_preference?: number | null;
+  first_preference_name?: string | null;
+  second_preference?: number | null;
+  second_preference_name?: string | null;
+  third_preference?: number | null;
+  third_preference_name?: string | null;
 };
 
 export type AdminStudentsResponse = {
@@ -359,6 +416,9 @@ export async function fetchAdminStudents(params?: {
   major_id?: number;
   year_id?: number;
   status?: string;
+  first_preference?: number;
+  second_preference?: number;
+  third_preference?: number;
   per_page?: number;
   page?: number;
 }): Promise<AdminStudentsResponse> {
@@ -399,6 +459,11 @@ export async function fetchAdminStudents(params?: {
   };
 }
 
+export async function resetPst(id: number): Promise<{ success: boolean }> {
+  const response = await api.post<{ success: boolean }>(`/students/admin/${id}/reset-pst`);
+  return response.data;
+}
+
 // ── Academic Catalog ──
 export type CatalogItem = { id: number; name: string };
 export type MajorItem  = CatalogItem & { faculty_id: number };
@@ -414,6 +479,17 @@ export const fetchFaculties    = () => fetchCatalog<CatalogItem>("/faculties");
 export const fetchYears        = () => fetchCatalog<CatalogItem>("/years");
 export const fetchMajors       = (faculty_id?: number) =>
   fetchCatalog<MajorItem>("/majors", faculty_id ? { faculty_id } : undefined);
+
+export interface CompanyItem {
+  id: number;
+  name: string;
+  industry: string;
+  is_available: boolean;
+  majors?: { id: number; name: string }[];
+}
+
+export const fetchCompanies = (major_id?: number, year_id?: number) =>
+  fetchCatalog<CompanyItem>("/companies", major_id ? { major_id, year_id } : undefined);
 
 export interface QuizResponse {
   score: string;
@@ -481,6 +557,118 @@ export async function getCompanies(
     console.error("Error fetching companies try later");
     throw error;
   }
+}
+
+// ── Interns Management ──
+export type InternStatus = "active" | "completed" | "cancelled" | string;
+
+export interface Intern {
+  id: number;
+  student_id: number;
+  company_id: number;
+  major_id: number;
+  status: InternStatus;
+  started_at: string;
+  ended_at: string;
+  student_name: string;
+  student_email: string;
+  company_name: string;
+  company_industry: string;
+  major_name: string;
+  year_name: string;
+}
+
+export interface InternsResponse {
+  data: Intern[];
+  total?: number;
+  last_page?: number;
+  current_page?: number;
+}
+
+export async function fetchInterns(params?: {
+  company_id?: number;
+  student_id?: number;
+  status?: string;
+  major_id?: number;
+  year_id?: number;
+  per_page?: number;
+  page?: number;
+}): Promise<InternsResponse> {
+  if (useMockApi) {
+    const response = await fetchMockJson<InternsResponse>("interns.json").catch(() => ({ data: [] }));
+    return response;
+  }
+  const response = await api.get<InternsResponse>("/interns", { params: params ?? {} });
+  return response.data;
+}
+
+export async function createIntern(data: {
+  student_id: number;
+  company_id: number;
+  major_id: number;
+  status: string;
+  started_at: string;
+  ended_at: string;
+}): Promise<{ data: Intern }> {
+  if (useMockApi) {
+    void data;
+    return { data: { ...data, id: Date.now(), student_name: "Student", student_email: "student@test.com", company_name: "Company", company_industry: "Tech", major_name: "CS", year_name: "3rd Year" } };
+  }
+  const response = await api.post<{ data: Intern }>("/interns", data);
+  return response.data;
+}
+
+export async function updateIntern(
+  id: number,
+  data: {
+    status?: string;
+    started_at?: string;
+    ended_at?: string;
+  }
+): Promise<{ data: Intern }> {
+  if (useMockApi) {
+    void id;
+    void data;
+    return { data: { id, student_id: 1, company_id: 1, major_id: 1, status: data.status || "active", started_at: data.started_at || "2026-01-01", ended_at: data.ended_at || "2026-03-01", student_name: "Student", student_email: "student@test.com", company_name: "Company", company_industry: "Tech", major_name: "CS", year_name: "3rd Year" } };
+  }
+  const response = await api.put<{ data: Intern }>(`/interns/${id}`, data);
+  return response.data;
+}
+
+export async function deleteIntern(id: number): Promise<{ message: string }> {
+  if (useMockApi) {
+    void id;
+    return { message: "Intern deleted successfully." };
+  }
+  const response = await api.delete<{ message: string }>(`/interns/${id}`);
+  return response.data;
+}
+
+export interface EligibleStudent {
+  student_id: number;
+  student_name: string;
+  student_email: string;
+  student_phone: string;
+  major_name: string;
+  year_name: string;
+  pst_percentage: number;
+  pst_score: number;
+  eligible_companies: {
+    id: number;
+    name: string;
+    industry: string;
+  }[];
+}
+
+export async function fetchEligibleStudents(company_id?: number): Promise<EligibleStudent[]> {
+  if (useMockApi) {
+    const response = await fetchMockJson<{ data: EligibleStudent[] }>("eligible-students.json").catch(() => ({ data: [] }));
+    return unwrapData(response);
+  }
+  const response = await api.get<{ data: EligibleStudent[] }>("/interns/eligible", {
+    params: company_id ? { company_id } : {},
+  });
+  return unwrapData(response.data);
 }
 
 export async function addStudent(formData: FormType) {
@@ -681,4 +869,194 @@ export async function getStudentInterviews(
     throw new Error("Failed to fetch students data");
   }
   return response.data.students;
+}
+
+// ── Slots Management ──
+export type Slot = {
+  id: number;
+  interviewer: string;
+  slot_time: string;
+  student_id?: number | null;
+  student_name?: string | null;
+  student_phone?: string | null;
+  created_at?: string;
+};
+
+export async function fetchSlots(): Promise<Slot[]> {
+  if (useMockApi) {
+    const response = await fetchMockJson<{ data: Slot[] }>("slots.json");
+    return unwrapData(response);
+  }
+  const response = await api.get<{ data: Slot[] }>("/sloapecansts");
+  return unwrapData(response.data);
+}
+
+export async function createSlot(data: {
+  interviewer: string;
+  slot_time: string;
+}): Promise<{ message: string; id: number }> {
+  if (useMockApi) {
+    void data;
+    return { message: "Slot created successfully", id: Date.now() };
+  }
+  const response = await api.post<{ message: string; id: number }>(
+    "/sloapecansts",
+    data
+  );
+  return response.data;
+}
+
+export async function updateSlot(id: number, data: {
+  interviewer: string;
+  slot_time: string;
+}): Promise<{ message: string }> {
+  if (useMockApi) {
+    void id;
+    void data;
+    return { message: "Slot updated successfully" };
+  }
+  const response = await api.put<{ message: string }>(`/sloapecansts/${id}`, data);
+  return response.data;
+}
+
+export async function deleteSlot(id: number): Promise<{ message: string }> {
+  if (useMockApi) {
+    void id;
+    return { message: "Slot deleted successfully" };
+  }
+  const response = await api.delete<{ message: string }>(`/sloapecansts/${id}`);
+  return response.data;
+}
+
+export async function bookSlot(slotId: number, studentId: number): Promise<{ message: string }> {
+  if (useMockApi) {
+    void slotId;
+    void studentId;
+    return { message: "Slot booked successfully" };
+  }
+  const response = await api.post<{ message: string }>(`/slots/book/${slotId}`, {
+    student_id: studentId,
+  });
+  return response.data;
+}
+
+export async function cancelSlotBooking(slotId: number): Promise<{ message: string }> {
+  if (useMockApi) {
+    void slotId;
+    return { message: "Slot is now empty." };
+  }
+  const response = await api.post<{ message: string }>(`/slots/cancel/${slotId}`);
+  return response.data;
+}
+
+// ── Feedback ──
+export type FeedbackRating = "excellent" | "good" | "fair" | "poor";
+
+export interface FeedbackPayload {
+  name: string;
+  ushering: FeedbackRating;
+  information: FeedbackRating;
+  friendly: FeedbackRating;
+  flyer: FeedbackRating;
+  satisfied: FeedbackRating;
+  design: FeedbackRating;
+  comments?: string;
+}
+
+export interface CommitteeMember {
+  id: number;
+  member_name: string;
+  referral_code: string;
+};
+
+export async function fetchCommitteeMembers(): Promise<CommitteeMember[]> {
+  if (useMockApi) {
+    const response = await fetchMockJson<{ data: CommitteeMember[] }>("committee-members.json");
+    return unwrapData(response);
+  }
+  const response = await api.get<{ data: CommitteeMember[] }>("/apecans");
+  return unwrapData(response.data);
+}
+
+export async function submitFeedback(
+  payload: FeedbackPayload
+): Promise<{ message: string; feedback_id: number }> {
+  if (useMockApi) {
+    void payload;
+    return { message: "Feedback submitted successfully", feedback_id: Date.now() };
+  }
+  const response = await api.post<{ message: string; feedback_id: number }>(
+    "/feedback",
+    payload
+  );
+  return response.data;
+}
+
+export interface FeedbackCount {
+  name: string;
+  date: string;
+  total: number;
+}
+
+export async function fetchFeedbackCounts(): Promise<FeedbackCount[]> {
+  if (useMockApi) {
+    const response = await fetchMockJson<{ data: FeedbackCount[] }>("feedback-counts.json");
+    return unwrapData(response);
+  }
+  const response = await api.get<{ data: FeedbackCount[] }>("/feedback/count");
+  return unwrapData(response.data);
+}
+
+// ── Student Company Preferences ──
+export interface StudentCompany {
+  id: number;
+  name: string;
+  industry: string;
+}
+
+export interface StudentCompaniesResponse {
+  data: StudentCompany[];
+}
+
+export async function fetchStudentCompanies(
+  id: number,
+  token: string
+): Promise<StudentCompany[]> {
+  if (useMockApi) {
+    const response = await fetchMockJson<StudentCompaniesResponse>("student-companies.json");
+    return unwrapData(response);
+  }
+
+  const response = await api.get<StudentCompaniesResponse>(
+    `/students/${id}/companies`,
+    { params: { token } }
+  );
+  return unwrapData(response.data);
+}
+
+export interface StudentPreferencesPayload {
+  id: number;
+  token: string;
+  first_preference?: number;
+  second_preference?: number;
+  third_preference?: number;
+}
+
+export interface StudentPreferencesResponse {
+  success: boolean;
+}
+
+export async function submitStudentPreferences(
+  payload: StudentPreferencesPayload
+): Promise<StudentPreferencesResponse> {
+  if (useMockApi) {
+    void payload;
+    return { success: true };
+  }
+
+  const response = await api.post<StudentPreferencesResponse>(
+    `/students/${payload.id}/preferences`,
+    { token: payload.token, first_preference: payload.first_preference, second_preference: payload.second_preference, third_preference: payload.third_preference }
+  );
+  return response.data;
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm, UseFormRegister, useWatch, Controller, Control } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -94,7 +95,7 @@ function EntitySelect({
       <Controller
         name={name}
         control={control}
-        rules={{ 
+        rules={{
           required: `${label} is required`,
           validate: (value) => value === "-1" || Number(value) > 0 || `${label} is required`,
         }}
@@ -158,6 +159,12 @@ function ValueSelect({
 function PremiumForm() {
   const navigate = useNavigate();
   const play = usePixelSound();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    play("mario");
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -236,10 +243,10 @@ function PremiumForm() {
       toast.success("Registration submitted successfully");
       // Fire QR mail — silent, non-blocking
       sendQrMail({
-        name: "cv_upload",
+        name: "pst",
         student_id: data.student_id,
         token: data.token,
-      }).catch(() => {});
+      }).catch(() => { });
       reset();
       navigate("/success", { replace: true });
     },
@@ -439,7 +446,7 @@ function PremiumForm() {
                   {...register("national_id", {
                     required: "National ID is required",
                     minLength: {
-                      value: 14,
+                      value: 6,
                       message: "National ID must be at least 14 characters",
                     },
                     pattern: {
@@ -589,9 +596,9 @@ function PremiumForm() {
                   type="text"
                   placeholder="ENTER CODE IF YOU HAVE ONE"
                   {...register("referral_code", {
-                    validate: (val) => 
-                      !val || 
-                      VALID_REFERRAL_CODES.includes(val) || 
+                    validate: (val) =>
+                      !val ||
+                      VALID_REFERRAL_CODES.includes(val) ||
                       "Invalid referral code",
                   })}
                   onInput={(e) => {

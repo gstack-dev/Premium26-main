@@ -6,7 +6,7 @@ interface SearchablePixelSelectProps {
   label: string;
   options: EntityOption[];
   value: string | number;
-  onChange: (value: number) => void;
+  onChange: (value: number | string) => void;
   error?: string;
   placeholder?: string;
 }

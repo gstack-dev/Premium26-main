@@ -24,7 +24,7 @@ export type companiesType = {
 };
 
 export type EntityOption = {
-  id: number;
+  id: number | string;
   name: string;
 };
 
@@ -97,6 +97,9 @@ export type StudentLookupResponse = {
   token: string;
   other_university?: string;
   other_faculty?: string;
+  other_major?: string;
+  major_id?: number;
+  year_id?: number;
   pst_result: PstResult | null;
   qr_codes: {
     cv_upload: string;
@@ -191,6 +194,8 @@ export type InternshipCompany = {
 export type EligibleInternshipsPayload = {
   student_id: number;
   token: string;
+  major_id?: number;
+  year_id?: number;
 };
 
 export type InternshipPreference = {

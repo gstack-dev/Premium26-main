@@ -15,6 +15,9 @@ const Internships = lazy(() => import("./pages/Internships"));
 const ThankYou = lazy(() => import("./pages/ThankYou"));
 const Interview = lazy(() => import("./pages/Interview"));
 const Data = lazy(() => import("./pages/Data"));
+const Slots = lazy(() => import("./pages/Slots"));
+const Feedback = lazy(() => import("./pages/Feedback"));
+const Interns = lazy(() => import("./pages/Interns"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -62,6 +65,9 @@ function App() {
               <Route path="/thank-you" element={<ThankYou />} />
               <Route path="/interview" element={<Interview />} />
               <Route path="/data" element={<Data />} />
+              <Route path="/slots" element={<Slots />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/interns" element={<Interns />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

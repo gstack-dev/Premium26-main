@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import {
-  fetchEligibleInternships,
+  fetchStudentCompanies,
   getApiErrorMessage,
   lookupStudent,
-  submitInternshipPreferences,
+  submitStudentPreferences,
 } from "../services/apiServices";
-import { InternshipPreference, StudentLookupResponse } from "../types/form";
+import { StudentLookupResponse } from "../types/form";
 import Button from "../ui/Button";
 import Spinner from "../ui/Spinner";
 
@@ -59,17 +59,13 @@ function Internships() {
     isLoading: isLoadingCompanies,
     isError: isCompaniesError,
   } = useQuery({
-    queryKey: ["premium26-internships", student?.id],
-    queryFn: () =>
-      fetchEligibleInternships({
-        student_id: student?.id || 0,
-        token: student?.token || "",
-      }),
+    queryKey: ["premium26-internships", student?.id, student?.token],
+    queryFn: () => fetchStudentCompanies(student!.id, student!.token),
     enabled: Boolean(student && canSelectInternships(student)),
   });
 
   const { mutate: submitPreferences, isLoading: isSubmitting } = useMutation({
-    mutationFn: submitInternshipPreferences,
+    mutationFn: submitStudentPreferences,
     onSuccess: () => {
       toast.success("Internship preferences submitted successfully");
       navigate("/thank-you?submit=internship-preferences", { replace: true });
@@ -104,31 +100,29 @@ function Internships() {
   function handleSubmitPreferences() {
     if (!student) return;
 
-    const preferences: InternshipPreference[] = ([1, 2, 3] as Rank[])
-      .map((rank) => ({
-        rank,
-        company_id: Number(selectedCompanies[rank]),
-      }))
-      .filter((preference) => preference.company_id > 0);
+    const firstPref = Number(selectedCompanies[1]) || undefined;
+    const secondPref = Number(selectedCompanies[2]) || undefined;
+    const thirdPref = Number(selectedCompanies[3]) || undefined;
 
-    const uniqueCompanyIds = new Set(
-      preferences.map((preference) => preference.company_id)
-    );
-
-    if (preferences.length === 0) {
+    if (!firstPref && !secondPref && !thirdPref) {
       toast.error("Please select at least one company.");
       return;
     }
 
-    if (uniqueCompanyIds.size !== preferences.length) {
+    const selected = [firstPref, secondPref, thirdPref].filter(Boolean);
+    const uniqueCompanyIds = new Set(selected);
+
+    if (uniqueCompanyIds.size !== selected.length) {
       toast.error("Company choices must be unique.");
       return;
     }
 
     submitPreferences({
-      student_id: student.id,
+      id: student.id,
       token: student.token,
-      preferences,
+      first_preference: firstPref,
+      second_preference: secondPref,
+      third_preference: thirdPref,
     });
   }
 
@@ -260,7 +254,7 @@ function Internships() {
         </div>
       )}
 
-      {/* ── No companies — waiting for PST confirmation ── */}
+      {/* ── No companies available ── */}
       {student && canSelectInternships(student) && companies?.length === 0 && (
         <div
           style={{
@@ -276,9 +270,9 @@ function Internships() {
             gap: "1.5rem",
           }}
         >
-          {/* Hourglass icon */}
-          <div style={{ fontSize: "32px", animation: "blink 1.4s step-end infinite" }}>
-            ⏳
+          {/* Icon */}
+          <div style={{ fontSize: "32px" }}>
+            📭
           </div>
 
           {/* Title */}
@@ -286,14 +280,13 @@ function Internships() {
             style={{
               fontFamily: "var(--pixel)",
               fontSize: "clamp(9px, 2vw, 13px)",
-              color: "var(--gold)",
-              textShadow: "2px 2px 0 #553300",
+              color: "var(--red-light)",
+              textShadow: "2px 2px 0 #330000",
               letterSpacing: "3px",
               lineHeight: 2,
-              animation: "flash-gold 2s step-end infinite",
             }}
           >
-            PLEASE WAIT...
+            NO COMPANIES AVAILABLE
           </div>
 
           {/* Message */}
@@ -306,11 +299,9 @@ function Internships() {
               maxWidth: "420px",
             }}
           >
-            COMPANIES WILL APPEAR HERE ONCE WE
+            THERE ARE NO COMPANIES AVAILABLE FOR YOUR MAJOR AND YEAR AT THIS TIME.
             <br />
-            <span style={{ color: "var(--gold)" }}>CONFIRM YOUR PST MARKS.</span>
-            <br />
-            PLEASE CHECK BACK SOON.
+            PLEASE CHECK BACK LATER.
           </div>
 
           {/* Blinking pixel dots */}
@@ -378,12 +369,9 @@ function Internships() {
             ))}
           </div>
 
-          {/* Company cards */}
-          <div style={{ marginBottom: "2rem" }}>
-            <p className="form-label" style={{ marginBottom: "1rem" }}>
-              ► AVAILABLE COMPANIES
-            </p>
-            <div style={{ display: "grid", gap: "10px" }}>
+{/* Company cards */}
+            <div style={{ marginBottom: "2rem" }}>
+              <div style={{ display: "grid", gap: "10px" }}>
               {companies.map((company) => (
                 <div
                   key={company.id}
@@ -402,9 +390,9 @@ function Internships() {
                   >
                     ► {company.name}
                   </div>
-                  {company.description && (
+                  {company.industry && (
                     <div style={{ fontSize: "6px", color: "#555", lineHeight: "2" }}>
-                      {company.description}
+                      {company.industry}
                     </div>
                   )}
                 </div>

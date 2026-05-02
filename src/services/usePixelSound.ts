@@ -13,7 +13,8 @@ type SoundType =
   | "danger"      // rapid low beep — last 5-min timer danger
   | "loader"      // ascending dot-beep — loading spinner loop
   | "start"       // fanfare — exam starts
-  | "submit";     // final submit chord
+  | "submit"      // final submit chord
+  | "mario";      // classic mario intro
 
 let ctx: AudioContext | null = null;
 
@@ -127,6 +128,20 @@ const sounds: Record<SoundType, () => void> = {
     const notes = [523, 659, 784];
     notes.forEach((f, i) => playTone(f, 0.3, "square", 0.14, i * 0.04));
     playTone(1047, 0.4, "triangle", 0.1, 0.2);
+  },
+
+  mario: () => {
+    // Classic Mario Intro (E E E C E G G)
+    const notes = [
+      { f: 659.25, d: 0 },
+      { f: 659.25, d: 0.15 },
+      { f: 659.25, d: 0.35 },
+      { f: 523.25, d: 0.5 },
+      { f: 659.25, d: 0.65 },
+      { f: 783.99, d: 0.8 },
+      { f: 392.00, d: 1.2 }
+    ];
+    notes.forEach(({ f, d }) => playTone(f, 0.12, "square", 0.15, d));
   },
 };
 

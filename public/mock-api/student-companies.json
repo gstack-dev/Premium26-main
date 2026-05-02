@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "id": 1, "name": "Microsoft Egypt", "industry": "Technology" },
+    { "id": 3, "name": "Vodafone", "industry": "Telecommunications" },
+    { "id": 7, "name": "Amazon Egypt", "industry": "E-commerce" }
+  ]
+}
