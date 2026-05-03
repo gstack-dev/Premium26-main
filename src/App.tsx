@@ -67,7 +67,7 @@ function App() {
               <Route path="/data" element={<Data />} />
               <Route path="/slots" element={<Slots />} />
               <Route path="/feedback" element={<Feedback />} />
-              <Route path="/interns" element={<Interns />} />
+              //<Route path="/interns" element={<Interns />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
